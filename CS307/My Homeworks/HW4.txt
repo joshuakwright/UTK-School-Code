@@ -1,0 +1,16 @@
+Joshua Wright CS307 HW4 
+Option A: 
+partial_sort(A.begin(), A.begin() + k, A.end());
+
+Option B: 
+make_heap(A.begin(), A.end());
+for (int i = 0; i < k; i++) {
+ 	pop_heap(A.begin(), A.end() - i);
+ }
+reverse(A.begin(), A.end());
+
+Option C: 
+make_heap(A.begin(), A.end());
+for (int i = 0; i < N; i++) {
+	pop_heap(A.begin(), A.end() - i);
+}

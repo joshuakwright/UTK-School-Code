@@ -1,0 +1,1275 @@
+CS365 Midterm Review:
+
+Why Study Programming Languages?
+• Learn fundamental concepts of PL
+• To become a better programmer
+• Confidence in picking up new languages
+
+Language Selection: 
+• Reusability
+• Maintainability
+• Adaptability
+
+5 Components of Programming Languages
+• Syntax: How do you write the language?
+• Semantics: What do the various language features mean?
+• Idioms: What are the common approaches to using the language features?
+• Libraries: What has already been written?
+• Tools: What is available for manipulating programs in the language?
+
+Basic Definitions
+• Procedural: List of instructions 
+• Functional: Composing and applying functions
+Compiled: The program, once compiled, is expressed in the instructions of the target machine
+• Interpreted: Program instructions are not directly executed by the target machine, but instead
+read and executed by some other program
+Compiled
+	• Pros
+		• Compile time optimization
+		• Executions native to hardware
+		• Better performance
+	• Cons:  
+		• May not be as portable
+		• Requires compilation before test running, 
+Interpreted
+	• Pros
+		• More portable		
+		• Less time to execution
+	• Cons
+		• Slower
+		• Syntax not checked
+		• Limited optimization
+
+Fundamental Processing Paradigms
+• Batch
+	• Implicit processing
+	• Large event/batch processing
+• Interactive
+	• Conversational
+	• Pseudo-conversational
+
+Operational Paradigms
+• Event Loop: Get something, do something, produce
+• State Machine: In a state, move to another state
+• Object-oriented: Agent based, interact with other agents
+
+Assembly Language ASM
+⚫ Similar to the machine code
+⚫ Instructions are human readable
+⚫ Converted into executable machine code by assembler
+
+Why Care?
+⚫ Understanding assembly language gives insight into
+⚫ How programs interface with OS and CPU
+⚫ How data represented in memory
+⚫ How processor accesses and executes instruction
+Uses less memory
+⚫ Requires less execution time
+⚫ Suitable for time-critical jobs
+
+Know that Assembly Code is translated into machine code by the Assembler 
+
+3 components:  memory, registers, processor
+⚫ Registers hold data or addresses
+External Device -> Internal Memory -> Execute Instructions
+
+General Registers
+⚫ Data registers
+	− EAX, EBX, ECX, EDX
+	− Lower half of the 32-bit registers can be used for 16-bit data registers: AX, BX, CX, DX
+⚫ Pointer registers
+⚫ Index registers
+
+Know the types of registers in NASM Assembly: general (Data, pointer, index), control 
+(IP and flags registers), segment registers 
+
+Assembly has three pointer registers, and they are:
+	the Instruction pointer (in EIP register),
+	the Stack pointer (in ESP register),
+	the Base pointer (in EBP) register.
+
+The control registers are which two registers in Assembly? : the instruction pointer register and the flags register.
+
+Know that there are 10 32-bit registers in NASM Assembly and 6 16-bit registers
+
+Know the three static memory segments (data, code, stack) 
+
+Assembly Code: 3 Sections
+⚫ Data Section – declaring initialized data or constants section .data
+⚫ Bss Section – declaring variables section .bss
+⚫ Text Section – keeping the actual code 
+	section .text
+		global_start
+	_start:
+
+NASM Assembly has a segmented memory model.  Name the three types of memory segments:
+
+	1.  Data segment, which contains the data and bss sections of the code
+	2.  Stack segment, which contains values passed to functions
+	3.  Code segment, which contains the text section of the code
+
+Understand every processor has a set of instructions 
+
+RISC (Reduced Instruction Set Computing) vs. CISC (Complex Instruction Set Computing)
+- The RISC Approach: RISC processors only use simple instructions that can be executed within one clock cycle.
+- The CISC Approach: The primary goal of CISC architecture is to complete a task in as few lines 
+of assembly as possible. This is achieved by building processor hardware that is capable of 
+understanding and executing a series of operations.
+
+List applications and systems programmed using Assembly:
+	- Device drivers
+	• Compilers
+	• Hyperperformance routines
+	• Computation forensics and security
+
+Know the three types of statements in Assembly:  instructions, directives, and macros 
+	- Directives are not incstructions and don't translate to machine code. They tell the 
+	assembler to take some action. Ex. .text / .data / .label
+
+System Calls: 
+	- Reading: 3
+	- Writing: 4
+	- Exiting: 1
+	- Allocating Memory: 45
+
+3 Basic Modes of Addressing
+⚫ Register addressing
+	⚫ mov dx, price 
+	⚫ mov count, cx,  
+	⚫ mov eax, ebx
+⚫ Immediate addressing
+	⚫ Byte_Value DB  150   ; Byte_value defined
+	⚫ add Byte_Value, 65     ; Immediate operand 65 is added
+	⚫ mov ax, 45H             ; Immediate constant 45H is transferred to AX
+⚫ Memory addressing
+	⚫ mov bx, Byte_Value ; move operand from memory to register
+
+What is DB, DW, DD? (Define Directives)
+⚫ [variable-name] define-directive initial-val [, initial-val] ...
+⚫ DB = Define Byte
+	Size – 1 Byte
+⚫ DW = Define Word
+	Size – 2 Bytes
+⚫ DD = Define Double Word
+	Size – 4 Bytes
+
+Define Directives (Allocating storage for initialized data)
+choice              DB      ‘y’
+number            DW     12345
+
+Define Directives (Allocating storage for uninitialized data)
+	⚫ resb reserve a byte
+	⚫ resw reserve a word
+
+Multiplying:
+For num1 x num2:
+	Put num1 in eax
+	Put num2 in ebx
+	mul ebx
+	Ans: EDX : EAX (higher 32-bit : lower 32-bit)
+
+Dividing: 
+For num1 / num2
+	Put num1 in eax
+	Put num2 in ebx
+	div ebx
+	Ans: EAX : EDX (Quotient : Remainder)
+
+Access Value: 
+	[num1] : [] allows for access of value in num1
+	
+Reading Single Digit: 
+	mov eax, 3
+	mov ebx, 0
+	mov ecx, num1
+	mov edx, 1
+	int 80h
+
+Writing Single Digit: 
+	mov eax, 4
+	mov ebx, 1
+	mov ecx, num1
+	mov edx, 1
+	int 80h
+
+Know basic Assembly instructions:  jmp, conditional jumps, cmp, loop 
+	Loops:
+		Label1:
+			<loop body>
+		Loop Label1
+	(The loop instruction decrements the ecx register)
+	
+	cmp destination, source (register or memory, constant, register, or memory)
+
+Know basic Assembly constructs:  labels, macros, procedures 
+	Macro Syntax:
+		%macro macro_name number_of_params
+			<macro body> 
+		%endmacro
+
+	Procedure Syntax:
+		proc_name:
+			procedure body ...
+		ret
+		(Call  proc_name)
+
+	label: (use jmp to jump to here label)
+
+Logical Operators
+	AND operand 1, operand2
+	OR operand1, operand2
+	XOR operand1, operand2
+	TEST operand1, operand2
+	NOT operand1, operand2
+
+sys_brk
+	mov eax, 45
+	mov ebx, [heap_base]
+	add ebx, 8
+	int 80h
+
+Arrays
+	One Dimensional:
+		week dw 1, 2, 3, 4, 5, 6, 7  or 
+		week times 7 dw 0
+	
+	Two Dimensional:
+		month dw 1, 2, 3, 4, 5, 6, 7 
+		dw 1, 2, 3, 4, 5, 6, 7
+		dw 1, 2, 3, 4, 5, 6, 7
+		dw 1, 2, 3, 4, 5, 6, 7
+
+Direct Memory Addressing
+	• Exact location of data in memory
+	• Segment start address (found in DS register) + offset value
+	• Offset value is called effective address
+	• One operand is a memory location and other operand references a register
+	Ex: mov cl, byte_table[2] / mov cl, byte_table + 2
+
+Indirect Memory Addressing
+	• Utilizes the Segment:Offsetaddressing
+	• Base registers, EBX or BX and EBP or BP, and the index registers, DI or SI, coded in within [ ] for memory references
+	• Used for variables containing several elements like arrays
+	• Starting address of array stored in EBX (for example)
+	Ex: 
+		matrix times 8 dw 0  ; Allocates 8 words each initialized to zero
+		mov ebx, [matrix]      ; Effective address of matrix is in ebx
+		mov [ebx], 300          ; matrix [0] = 300
+		add ebx, 2                 ; ebx = ebx + 2
+		mov [ebx], 234          ; matrix[1] = 234
+
+The length of a string can be specified by 
+	- Explicitly storing the string length ($-string) 
+  	- Using a sentinel character 
+
+Programming Languages that provide implementations of various collections / collections use linked lists.
+
+Three types of linked lists: singly, doubly, circular
+
+Mid-Level Languages Good For: 
+	➢ Useful for writing compilers and OS
+	➢ Write major programs
+
+What is Nice About C?
+	- Compact
+	- Portable
+	- Reusable
+	- Simple – ease of use
+
+Abstractions in C: Variables, Conditionals, Scoping, I/O Operations, Data Types
+Data Types in C
+	• Assembly – reserving a piece of storage
+	• C – declaring a variable and describe what type
+	• Not worrying about size and address
+	• New level of abstraction
+	• int, short, long, float, double – responsibility of Compiler
+
+I/O in C
+	• Write: printf
+		• int printf (char *format, arg1, arg2, ...)
+		• Converts, formats, and prints its arguments
+		• Returns the number of characters printed
+	• Read: scanf
+		• int scanf (char *format, arg1, arg2, ...)
+		• Reads characters from standard input and interprets from a specified format and stores results
+
+Know the major contribution of C is its portability.
+
+In 1983, C standardized by American National Standards Institute (ANSI)
+
+Significant contributions of ANSI C:
+	• Libraries
+	• Standard I/O
+	• Primitive Data Types:  int, char, float, double
+
+C Grammar
+	➢ C Language described by a grammar
+	➢ Grammar defines all language constructs that form a valid program
+
+Where are variable types and size enforced in C? : Pointers and Addresses
+	• Assembly:  X is an address
+	• C:  X is named box of memory with a type and size kept track of by compiler
+
+Static vs. Dynamic Memory Allocation
+	• Static Memory Allocation: Continguous
+	• Dynamic Memory Allocation:
+	• Assembly:  Grab off heap
+	• C:  Gives a handle to memory allocated from heap
+
+C / C++
+	Procedural Paradigm / Procedural and OO Paradigms
+	Function-driven language / Object-driven language
+	Data and functions separated / Data and functions encapsulated 
+	Functional and operator overloading not allowed / Functional and operator overloading allowed
+	No inheritance / Allows inheritance
+	Exception handling not supported / Exception handling supported
+	No namespace feature / Has namespace feature
+	Does not support reference variable functionality / Supports reference variable functionality
+	No polymorphism / Implements polymorphism
+
+History of C++:
+	Created by Bjarne Stroustrup
+	Originally C with Classes
+	Became C++ in 1983 
+	C++ extends C by adding features
+	More abstraction
+	Name C++ is C incremented
+	Standard proposed 1995 and ratified in 1998
+
+Object-Oriented Paradigm
+	Objects and classes
+	Easier to reuse and adaptation
+	What are important features of OOP 
+	(Object-oriented programming)
+
+Important features of OOP
+	❑ Bottom-up approach
+	❑ Organized around objects, grouped into classes
+	❑ Focus on data with methods to operate on object’s data
+	❑ Interaction between objects through functions
+	❑ Reusability through inheritance 
+
+Java History
+	➢ Developed by James Gosling at Sun Microsystems in 1995
+	➢ Wanted to design a language for small electrical devices
+	➢ Independent of processor running on
+	➢ Java launched when Sun integrated it with their browser
+	➢ Made for the WWW / Graphical UI
+
+Differences between Java & C++
+	Java / C++
+	No header files / Has header files
+	Packages / Namespace
+	Functions always exist within objects / Functions can exist outside of objects
+	No explicit memory reclaiming (Garbage collection) / Has explicit memory deallocation: delete
+	No explicit pointers / Has pointers
+	Objects are allocated off the heap / Objects can be stack allocated
+
+Java Compile and Interpret
+	➢ Put code in X.java file
+	➢ Must name file same as class inside
+	➢ Compile with “javac X.java”
+	➢ Translates to bytecode (this is good because it makes Java programs platform-independent)
+	➢ Execute with “java X”
+
+Disadvantage of Java VM is that it is not directly compiled to machine code so will be slower
+Java Virtual Machine (VM)
+	➢ Compile (javac X.java) Java code into bytecode and gets put into X.class
+	➢ X.class holds bytecode which is the Assembly language for Java’s VM
+	➢ Execute (java X) program which invokes VM
+	➢ Tells VM where to find main method in X.class
+	➢ WORA – Write Once Run Anywhere
+
+Java Code
+	➢ Java classes contain fields and methods
+	➢ No function exists outside a class
+	➢ Main – one argument: String args[]
+	➢ Put main code in constructor and make constructor public
+
+Java Code:  Classes➢ Each field and method has an access level
+	➢ private
+		➢ (package)
+		➢ protected
+		➢ public
+	➢ Each class has one or two possible access levels
+		➢ (package)
+		➢ Public
+	➢ All Java classes are subclasses of Object
+
+Java Code: Constructors
+	➢ Initializes each instance of a class
+	➢ Have no return type
+	➢ Can be overloaded
+	➢ Access control for every field and every method must be specified
+	public
+		int x;
+		int y;
+	(only x public)
+
+Java: Constants
+	▪ final keyword – a Java’s way of declaring a constant
+	▪ Memory for the final keyword is shared by all instances
+	▪ Want it to be accessible outside the class, declare it both public and static
+
+Java: static
+	➢ Just like in C++
+	➢ If field is static, then only one copy for entire class
+	➢ Example:
+		static int numLists = 0;
+		numLists++
+	➢ Free functions should be static methods in Java
+
+Static / Final
+	Applies to nested static class, variables, methods, and block / Applies only to class methods and variables
+	Not compulsory to initialize the static variable at the time of its declaration / Compulsory to initialize the final variable at the time of its declaration
+	Can be reinitialized / Cannot be reinitialized
+	Methods can only access the static members of the class and can only be called by other static methods / Methods cannot be inherited
+	Ex:  static String city = “Knoxville” / Ex:  final double TAX = 0.0925
+
+Java Variables
+	▪ A variable may be declared within a class, a method, a block, or a statement
+	▪ Once a variable goes out of scope, undefined
+	▪ A variable may not be declared anywhere outside a class
+		How do you make a variable global within a class?
+	▪ A variable declared within a block cannot have the same name as variable in an enclosing block or method
+
+Java Variables
+For example:
+	int name (int [] a) {
+		...
+		int j;
+		for (int i = 0; i < a.length; i++) {
+			int j = a[i];
+		...
+		}
+		...
+
+	int name (int [] a) {
+		for (int i = 10; i > 0; i--) { 
+	...
+		}
+		for (int i = 0; i < 10, i++) {
+	...
+		}
+	...
+
+Java: Strings
+	➢ String class is provided in Java
+	➢ Strings are immutable, once created not changeable
+	➢ Example:
+		String a = “Hello”;
+		a = a + “ world”;   // Concatenation makes a completely new string
+
+Java: Strings
+	➢ Compare strings using a string’s equals or compareTo method
+		a.equals(b) – returns true/false
+		a.compareTo(b) – returns negative numer, 0, or positive number depending on whether a<b, a=b or a>b
+	➢ Use StringBuilder or StringBuffer object if you want to modify/edit a string
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End of Midterm 1 Material ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Java Features
+	- Multi-Thread Concurrency
+	- Functional
+	- Better Preformance
+	- Platform Independent
+	- Secure
+	- Robust
+	- Simple
+	- Familiar
+	- Object Oriented
+
+Review Questions
+	- Where does the main function go in Java?
+		Inside a class – declared as static public and returns void
+	- How do you run a compile and run a program in Java?
+		javac filename.java, java filename
+		filename = class name
+	- Does main need an argument?
+		yes – String args[]
+	- Does the constructor of the main class need an argument?  
+		no
+
+Garbage Collection
+	• A process done at run-time
+		Deallocates and reclaims unused memory
+		Advantage:  Robustness – avoids dangling references and memory leaks
+		Disadvantage:  Efficiency
+	• Provides a finalize method in the Object class
+
+Object Oriented Paradigm
+	• Classes and Objects
+	• Instance of a class is known as an object
+	• Every object has a state and behavior in the form of fields  (attributes) or methods
+
+Methods
+	• Methods operate on fields and variables
+	• Methods: Collection of statements to do a specific task
+	• Pass-by-value, Pass-by-reference
+	• Every class has at lest a constructor method
+
+Constructors
+	Types: Default and Parameterized
+
+Kinds of Variables: Local, Instance, Static
+
+Java Variables
+	▪ A variable may be declared within a class, a method, a block, or a statement
+	▪ Once a variable goes out of scope, undefined
+	▪ A variable may not be declared anywhere outside a class
+	▪ A variable declared within a block cannot have the same name as variable in an enclosing block or method
+
+Data Types
+	▪ Every data object is an instance of a class
+	▪ Some are primitives and some are nonprimitive (more abstract):  string, array, stack, etc. 
+	▪ Built-in Classes
+
+Java: Strings
+	➢ String class is provided in Java
+	➢ Strings are immutable, once created not changeable
+	➢ Example:
+		String a = “Hello”;
+		a = a + “ world”;   // Concatenation makes a completely new string
+	➢ Compare strings using a string’s equals or compareTo method
+		a.equals(b) – returns true/false
+		a.compareTo(b) – returns negative numer, 0, or positive number depending on whether a<b, a=b or a>b
+	➢ Use StringBuilder or StringBuffer object if you want to modify/edit a string
+
+Java: Arrays
+	➢ Arrays are objects
+	➢ Instantiate array with new or initialization
+	➢ Brackets after type name or variable
+	➢ Length field returns number of elements in aray
+
+Java: Array Syntax
+	Declaring:
+		datatype variable_name[]; OR
+		datatype[] variable_name;
+	Instantiating: 
+		variable_name = new datatype [size];
+
+	int sample_array[]; //declaring 
+	array sample_array = new int[20]; // allocating memory for 20 integers to array
+	int[] intArray = new int[]{ 1,2,3,4,5,6,7,8,9,10 };
+
+Java Operators
+	- Logical Operators
+	- Ternary Operators
+	- Bitwise Operators
+	- Shift Operators
+	- Arithemtic Operators
+	- Unary Operators
+	- Assignment Operators
+	- Relational Operators
+
+Java Control Flow
+	➢ 3 Types of control statements:
+		➢ Decision Making
+		➢ Loop
+		➢ Jump
+
+Garbage Collection Revisited
+	➢ Object Class
+	➢ Finalize method
+
+Objects: Java is object focused
+	➢ Everything in Java an object
+	➢ Everything is a pointer to an address on heap containing the object
+	➢ No explicit handle to a pointer, but everything is a pointer
+
+Java Memory Management
+	• Heap vs. Stack
+	• All objects allocated off the heap
+	• Java has no explicit pointers because everything is an implicit pointer
+	• Java has no explicit memory reclamation, garbage collection is done implicitly
+
+	What is the difference between this statement in C++ and Java?
+	foo a;     // Where foo is a class
+	- C++ this is an instantiation calling default constructor – put on stack
+	- Java this is just a label for an object to be instantiated when new called and allocated on off the heap
+
+Java Classes
+	➢ Variables whose types are classes cannot be allocated on the stack
+	➢ All objects are allocated by calling new and memory is allocated for object from the heap
+	➢ Always use dot operator to access fields and functions
+	➢ Beware of assignment
+	➢ a = b when executed assigns the pointer of a to b
+	➢ If a changes so will b
+	➢ Initialization Blocks
+	➢ Called when object first created
+	➢ Essentially copied into constructor
+	➢ Generic Code for multiple constructors
+ 	➢ Nested Classes – define a class within a class
+	➢ ObjectClass – root of Java class hierarchy
+	➢ All classes have the Objectclass as their superclass
+	➢ finalize method in this class (not to be called)
+	➢ equals method in this class to compare two objects
+
+Java Wrapper Classes
+	- Everything in Java is an object – primitive types are not changeable
+	• Bind data primitive types into more complex objects
+	• Provides functionality
+	- Autoboxing and Unboxing
+	- Advantages:
+		- Serialization
+		- Synchronization
+		- java.util package
+		- Collection Framework
+		- Changing the value inside a method
+		- Polymorphism
+
+More Java Arrays
+	Declaration – use empty brackets before or after
+		int a [];
+		int [] b;
+	Instantiate – new or initialize
+		int a [] = new int[5];
+		int [] b = new int[8];
+		int [] c = new int[] {1, 2, 3, 4, 5}
+		int d [] = {1, 2, 3, 4, 5}
+	➢ Don’t forget about length field
+	➢ Also, can iterate through a collection of objects, such as an array, with this construct:
+		int[] a = {1, 2, 3, 4, 5};
+		sum = 0;
+		for (int element : a) {  // element must be declared in for statement
+			sum += element;
+		}
+	➢ Can also do multi-dimensional arrays
+	String literal:
+		String str = “Hello!”;
+	String new:
+		String str = new String (‘Hello!’)
+
+Java Keywords
+	➢ this
+	➢ final
+	➢ static
+	➢ instanceof
+
+Java Keywords
+	➢ this
+		- current object in a method: this
+		- variable in a class:  this.var
+		- call the method of current class: this.method();
+		- call constructor of current class:  this()
+		- parameter to a method: fun(this);
+		- used to get current instance of a class: return this;
+	- final
+		- final variable -> to create constant variables
+		- final methods -> prevent method overriding
+		- final classes -> Prevent Inheritance
+	➢ static
+		- blocks
+		- variables
+		- methods
+		- classes
+
+Java Packages
+	➢ Java classes are organized into packages
+	➢ Every class is part of some package
+	➢ Use package at top of a class file (file.java) to be imported: package pack;
+	➢ Use import at top of files at top of class files to import: import pack.*; import pack.ClassName;
+	➢ Example:  testing_packages.java
+
+Java Packages One directory
+	package_1/
+		ClassOne.java
+		ClassOne.class
+	package_2/
+		ClassTwo.java
+		ClassTwo.class
+
+Java Packages
+	➢ java.lang
+	➢ java.math
+	➢ java.util
+	➢ java.io
+
+Java I/O
+	➢ 3 I/O streams created automatically
+	➢ System.out
+	➢ System.in
+	➢ System.err
+
+Java Output
+	Output: print
+		➢ .print()
+		➢ .println()
+		➢ .printf()
+
+Java Input
+	Read Input:
+		➢ Scanner Class
+			Scanner console = new Scanner(System.in);
+			Scanner lineTokenizer = new Scanner(nextLine);
+		➢ Console Class
+
+Java Enum Object
+	➢ Unlike C++, Java enumerated constants are instances of a class – an object
+	➢ enum declaration defines a class called enum type
+	➢ Compile adds some special methods when createsenum – such as values
+	➢ Access an enum constant with a dot
+
+Java Jar Files
+	Jar file – single file that can contain more than one class in a compressed format
+	Jar files – normal way to distribute finished applications
+
+Access Modifiers
+	➢ What are access modifiers or specifiers?
+		Keywords that define the accessibility of classes, methods, and variables
+	➢ Facilitates encapsulation
+	➢ 4 types:
+		➢ default  (no keyword required)
+		➢ private : classes and interfaces cannot be private
+		➢ protected  : classes cannot be protected
+		➢ public
+
+Non-Access Modifiers
+	➢ static
+	➢ final 
+	➢ abstract (used for creating abstract classes and methods)
+	➢ synchronized and volatile (used for threads)
+
+Java Fundamentals
+	➢ Classes
+	➢ Objects
+	➢ Packages
+	➢ Numbers and Strings
+	➢ Inheritance
+	➢ Interfaces
+	➢ Generics
+
+Number Classes
+	➢ Working with numbers – mostly use primitive types
+	➢ Place primitives into objects with a wrapper class
+	➢ Use a primitive where object expected: compiler boxes the primitive in its wrapper class (autoboxing)
+	➢ Use a number object where primitive expected: compiler unboxes the object (unboxing)
+	- 3 Reasons to use a Number object rather than a primitive
+		➢ Argument of method expects an object
+		➢ To use constants defined by class, such as MIN_VALUE of MAX_VALUE
+		➢ To use class methods for converting values to and from other primitive types, strings, number systems
+	- Instance methods that all subclasses of the Number class implement
+		Examples:  Converts value of the Number object to primitive data type - returned
+			➢ int intValue;  
+			➢ float floatValue(); 
+		Examples:  Compares this Number object to the argument
+			➢ int compareTo(Double anotherDouble);
+			➢ int compareTo(Integer anotherInteger);
+		Example:  Determine whether this number object is equal to argument
+			➢ boolean equals(Object obj)
+
+Inheritance
+	➢ Object Oriented Languages must support
+	➢ Classes
+	➢ Objects
+	➢ Inheritance – Ability to inherit a parent class’s interface (public set of methods) and implementation
+	➢ Create new classes built upon existing classes
+	➢ When you inherit from an existing class, you can reuse methods and fields from a parent class
+	➢ Can add new methods and fields in the current class
+	➢ Can override methods from parent class
+	➢ Is-a relationship:  Parent-Child, Super (Base) Class-Subclass
+	➢ Subclass must inherit its superclass’s interface in its entirety
+	➢ Virtual methods implementation may be overridden
+	➢ Nonvirtual methods implementation may not be overridden
+	- Java Syntax:  use extends keyword
+	- class subclass-name extends superclass-name {...}
+	➢ Constructor Order:  in order of derivation of derivation from superclass to subclass
+	➢ super can be used to access any member of a superclass
+
+Is-a vs. Has-a Relationships
+	➢ Inheritance:  Is-a relationship
+	➢ Aggregation:  Has-a relationship
+		Class Employee {
+			int id;
+			String name;
+			Address address;   // Address is a class
+			...
+		}
+
+Inheritance: Java vs C++
+	Purpose Same but has Differences:
+		➢ Java – all classes inherit from Object class, always has a single inheritance tree of classes, not true for C++
+		➢ Meaning of protected different:  unlike C++ protected members of class A accessible by class B if in the same package
+		➢ Java uses extends keyword, no access specifiers
+	Differences:
+		➢ Java methods are virtual by default.  In C++ have to use virtual keyword.
+		➢ Java uses separate keywords for abstract and interface
+		➢ Java does not support multiple inheritance
+		➢ C++ use initializer list to call parameterized constructor of parent class.  Java parameterized constructor called using super
+
+Abstract vs. Non Abstract
+	➢ Data abstraction – hide details
+	➢ Abstraction can be achieved with either abstract classes or interfaces
+	➢ Keyword abstract can be used for classes and methods
+
+Abstract Classes & Methods
+	➢ Abstract Classes:  Restricted class that cannot be used to create objects – must be inherited from another class
+	➢ Abstract method:  Only used in an abstract class and it does not have a body (implementation).  The body is provided by the subclass.
+	➢ Classes with abstract method must be declared abstract
+	➢ Subclasses must be declared abstract if they fail to define the abstract method they inherit from an abstract superclass
+
+Interfaces
+	➢ Set of methods a class agrees to implement
+	➢ BUT NO actual implementation is provided - Group of related methods with empty bodies
+	➢ Classes can choose to implement as many interfaces as they desire
+	➢ Can only contain constants, method signatures, default methods, static methods, nested types
+	- A class describes attributes and behaviors of an object. An interface contains the behaviors that a class implements.
+	- Similarity to Classes  | Dissimiliarity to Classes
+		Can contain any # of methods | Cannot be instantiated
+		Written in .java file with same name | No constructor
+		Byte code appears in .class file | No instance fields Only static and final allowed
+		Appear in packages | No implementation in methods
+	➢ Use interface keyword to declare an interface
+	➢ Use implements to implement an interface
+	➢ Syntax:
+		access-modifier interface name {
+			return-type method-name(parameter-list);
+			...
+			type var1 = value;
+			...
+		}
+		public class Mammal implements Animal{ ... }
+	➢ Used anywhere a type can be used
+	➢ Allows a class to become more formal about the behavior it promises to provide
+	➢ Enforced by the compiler
+	➢ If class implements an interface, all methods from interface must have source code in the class (unless an abstract class)
+	➢ Why and When to use Interfaces?
+		Achieve Security – only use details of the interface object
+		Define functionality for multiple classes
+		Multiple Inheritance
+
+Polymorphism
+	• Polymorphism is a key features of Object-Oriented Programming
+	- Two Routes
+		•Method Overloading
+		•Method Overriding
+
+Overloading vs Overriding
+	- Method Overloading
+		• Classes can have multiple functions with the same name
+		• These functions are distinguished by the number of or type of the arguments they take 
+	- Method Overriding
+		• A subclass can redefine a function it’s parent has
+		• When the object is called, the new function is used rather than the parents
+
+Compile-Time vs Run-Time
+	- Compile-Time Polymorphism
+		• Also called Static Polymorphism
+		• The method call is resolved at compile time
+		• Achieved using Method Overloading 
+		• Can also be done with Operator Overloading in non-Java languages 
+
+Why bother?
+	• Increased code reusability
+	• Use a single variable to store different data values
+	• Less code = Less to debug
+
+Other Characteristics
+	• Coercion
+	• Internal Operator Overloading
+	• Polymorphic Variables
+
+Coercion
+	• Implicate type conversion of one object to another
+	• Done in order to prevent type errors
+		• String + int = String
+		• int + float = float
+
+Polymorphic Variables
+	• Holds values of different types during execution
+	• Java’s heavy usage of objects with “IS-A” relationships to one another allows a typed variable to hold many different objects
+
+Downsides?
+	• Can be tricky to implement
+	• Reduces code readability
+	• Can result in performance issues
+
+Exception Handling
+	➢ What is an exception?
+		An abnormal or unwanted event
+	➢ What is exception handling?
+		Handling of an unwanted event
+	➢ What is an unwanted event?
+		Event tha interrupts the flow of a program
+		Program execution gets terminated
+	GOOD NEWS: Java handles exceptions, helps the user
+
+Refrence Slide 5 of Java Lecture 8 to see the Java Exception Handling Hierarchy
+
+Java Exception Types
+	➢ Checked:  Checked at compile time
+		Classes that inherit the Throwable class except RuntimeException and Error
+		Common type: IOException
+	➢ Unchecked:  Checked at runtime
+		Classes that inherit RuntimeException
+		Common type:  ArrayIndexOutOfBoundsException, NullPointerException, ClassCastException
+	➢ Error
+		Not recoverable
+		Common type:  StackOverflowError, NoClassDefFoundError, OutOfMemoryError
+
+Java Exception Handling Keywords
+	try:
+		Used to specify a block for exception code, followed by catch or finally
+	catch: 
+		Used to handle the exception finally Used to execute the necessary code of the program
+	throw:
+		Used to throw an exception
+	throws:
+		Used to declare exceptions
+
+For exception handling keywords, check slide 7 of java powerpoint 10
+
+Collections
+	➢ What is a collection?
+		Data Structure in which objects are stored Objects can be added, deleted, traversed, sorted in a collection
+	➢ What is a Java collection?
+		Predefined structure for storing a group of elements and behaving like an object
+	➢ What is the Java Collection Framework?
+		Collection of interfaces and classes 
+
+For map of java collections, check slide 12 of java powerpoint 10
+
+Four Basic Collection Types
+	➢ Lists : ArrayList, LinkedList, Vector, Stack
+	➢ Sets : HashSet, LinkedHashSet, TreeSet
+	➢ Maps : HashMap, LinkedHashMap, TreeMap
+	➢ Queue : PriorityQueue, Deque, ArrayDeque
+
+Factors in Choosing➢ Ordering
+	➢ Duplicates
+	➢ Thread Safe
+	➢ Key-Value Pairs
+	➢ Random Access
+	➢ Upper Bounds
+	➢ Blocking Operations
+
+List Example
+	➢ ArrayList
+	➢ Implements List interface
+	➢ Based on Array data structure
+	➢ Use predefined methods
+	➢ ArrayList<Integer> list=new ArrayList<Integer>();
+
+Study of Python
+	➢ Procedural Programming Paradigm
+	➢ Object Oriented Paradigm
+	➢ Exception Handling
+	➢ Collections
+	➢ Concurrency
+	➢ Functional Programming Paradigm
+	➢ Python Interpreted Language
+
+Check out the python basics document in the python module
+
+See a list of many python methods on slide 2 of the python powerpoint 3
+
+Python Exception Handling
+	➢ Most common errors in 
+		Python:  syntax errors
+	➢ Built-in Exceptions
+	➢ Format for Exceptions: 
+		try ... except
+
+For plenty of python exception examples, check out slide 12 of python power point 3
+
+Python Exception Handling: 
+	Raise Clause
+		The raise statement raises an exception.
+		raise NameError('HiThere’)
+		raise
+
+To see good definition and code examples of Concurrency and Parallelism, check out slide 4 of python lecture 4
+
+Threads in Python
+	● CPython contains the Global Interpreter Lock (GIL)
+	● GIL prevents utilization of multiple CPU cores
+		○ Effectively makes all Python programs single threaded
+		○ Ensures that memory usage is thread safe
+	● Multiprocessing allows for Python to utililize multiple cores
+		○ Each process is created with it’s own Python interpreter
+
+Issues Introduced 
+	• Race Conditions
+		• What happens if multiple threads are using the same resource at the same time?
+	• Deadlock
+		• Why isn’t my program doing anything?
+
+Threading vs. Asyncio
+	What is the difference?
+		Threading    =>   pre-emptive multitasking
+		Asyncio      =>   cooperative multitasking
+
+Multithreading Cons
+	1. There is overhead associated with managing threads, so you don't want to use it for basic tasks
+	2. Increases the complexity of the program, which can make debugging more difficult
+
+Classes in Python
+	Classes are used to define objects, BUT they are objects themselves that can be manipulated at run-time.
+		- New instance variables can be added
+		- Instance variables can be deleted
+		- Methods may be added or deleted
+		- Method’s implementation may be modified
+
+Python Class Syntax
+	class ClassName:
+		‘Optional class documentation string’
+		class members
+		method definitions
+
+Built-in Python Class Attributes
+	__doc__ : Class documentation string (none if undefined) *
+	__name__ : Class name__module__ : Module name in which class is defined  *
+	__bases__ : Tuple containing base classes, in order of their occurrence in the base class list (possibly empty)
+	__dict__ : Dictionary containing the class’s namespace, stores all instance variables and method definitions*
+	
+	Built-in Python Object Attributes (in addition to * above and others)
+	__class__ :  Class name from which object was created
+
+Class vs. Instance Variables
+	➢ Variables with primitive types are instance variables
+	➢ Variables that store mutable values are class variables – seen by all classes
+	➢ Make them instance variables by putting in constructor
+
+Functions vs. Methods
+	➢ Function: Programmer must explicitly pass an instance object 
+	➢ Method: Pointer to an instance implicitly passed as the first argument
+		a = Point()
+		b = Point()
+		c = Point.addPoint(a,b)   # class function call
+		c = a.addPoint(b)            # instance method call
+
+Inheritance
+	Class DerivedClassName(BaseClassName)
+	...
+	Call base class methods:  BaseClassName.method(self,arguments)
+	Class DerivedClassName(Base1, Base2, Base3)
+
+Python Exception Handling Mechanism
+	try:
+		code
+	except ExceptionName1 as e1:
+		error handling code
+	except ExceptionName2:
+		error handling code
+	else:
+		code to execute if try completes successfully
+	finally:
+		code to execute regardless of whether an exception occurs
+
+Python Custom Exception Handling Example
+	Define user custom exceptions by creating a new class
+	Can use pass to define an empty body class
+	In practice to put all user defined exceptions in a separate file.
+
+FP Historical Origins
+	▪ Mathematicians have distinction between 
+		- Constructive proof – Obtain a mathematical object with some desired property
+		- Nonconstructive proof – Shows mathematical object exists by contradiction
+
+Functional PL
+	- What is functional programming?
+		▪ Programming paradigm where  programs are constructed by apply  and composing functions, mapping  values to other values.
+		▪ Declarative programming
+		▪ Functional Languages: Lisp, Scheme, FP, ML, Miranda, Haskell, Guile 
+		▪ Attempt to use Church’s lambda calculus in a PL
+		▪ Use branch-and-bound tree technique which led to recursion
+		▪ Tree implemented as lists
+		▪ Lists are naturally recursive
+
+Key FP Concepts
+	▪ Write computer functions as mathematical functions (evaluation vs execution)
+		- Map input to output
+	▪ Immutability
+	▪ No side effects
+	▪ Recursion rather than iteration
+
+Key FP Features
+	▪ 1st class functional language
+	▪ High-order functions
+	▪ Polymorphism
+	▪ Powerful list facilities
+	▪ Structured function returns
+	▪ Full general aggregates
+	▪ Garbage collection
+
+Key FP Advantages
+	- Functions make it easier to
+		➢ Determine input
+		➢ Determine output
+		➢ Prove have a correct program
+	➢ Test programs
+	- Another Advantage: Threads
+	- Disadvantage: Performance
+
+- Review into to FP part 2
+
+Lisp
+	➢ Lisp = LISt Processing
+	➢ Prefix Notation
+		(A + B)   ->     (+ A B)
+		(A + B + C + D)   ->    (+ A B C D)
+
+Lists and Functions
+	➢ Features of Lisp:  Lists and Functions
+	➢ List is the basis for Lisp
+	➢ Fundamental aspect of FL: Ability to  make functions, principal operation
+	➢ Keyword for making functions in Scheme – lambda
+
+Comments / Syntax
+	➢ What do you use for a comment?  Semicolon
+	➢ Basic Syntax:
+		➢ (operator operand...)
+		➢ (func-name arguments...)
+		➢ Ex (one argument):  (display “Hello”)
+		➢ Ex (no arguments):  (newline)
+
+Atom / Lists
+	➢ What is an atom? Strings and  numbers (like a variable)
+	➢ Lists – L trees
+	➢ Build lists – using quote or ‘, list, cons
+
+Car / Cdr / Cons
+	- What is the difference between car, cdr, cons?
+	- Works on and builds list
+	- car – gives 1st element of list 
+		(car lst)
+	- cdr – gives rest of list after 1st element
+		(cdr lst)
+	- cons – building lists, 2nd argument usually a list
+		(cons 2 ‘())
+	- (define lst ‘(a b c d))
+		Binds names to data structure
+
+Cons / List / Append
+	What is the difference?
+		- cons – takes two arguments and  creates a list
+		- list – creates a list out of arguments
+		- append – joins two lists together
+
+Define / Let
+	➢ define statement
+		(define a 8) – global variables
+	➢ let statement – local variables for a function
+		(let ((bind variables) (function on variables)))
+		(let ((a 10) (b 20)) (+ a b)))
+
+Conditionals
+	➢ (if (condition) (true) (false))
+	➢ (cond (c1 e1) (c2 e2) ... (cn en) (else en+1))
+		- Equivalent to
+			if c1 then return e1
+			else if c2 then return e2...
+			else if cn then return en
+			else return en+1
+
+Conditionals
+	(string? x) : is x a string?
+	(number? x): is x a number?
+	(pair? x): is x a cons cell?
+	(list? x): is x a list?
+	(null? x): is x the empty list?
+	(= ) : two numbers equal?
+	(eq?) : comparison (pointers)
+
+Anonymous Functions
+	(lambda (arguments) (function body))
+	(define function-name (lambda (arguments) 
+	(function body)))
+	(define (function-name arguments) (function body)))
+
+Scheme Examples➢ Factorial
+	➢ Length of list
+	➢ Sum of list ***
+	➢ Product of list
+	➢ Remove last element of list
+	➢ Find minimum of list
+	➢ Concatenate two lists
+
+Apply Function
+	➢ A function that takes two arguments:
+		➢ function and a list
+	➢ apply function
+		➢ invokes the given function with the  elements of list as its arguments
+		➢ returns whatever value the function  returns
+
+Apply Function
+	(define args ‘(3 4 5))
+	These are equivalent:
+		(+ 3 4 5)
+		(apply + ‘(3 4 5))
+		(apply + args)
+
+Functions With Variable Numbers of Arguments
+	- Passing one or more arguments to a function: (define (plus x . xs))
+	- Must use the “dot” notation before last parameter which represents “any number of arguments” including zero
+
+Function Definitions
+	(lambda (x) (* x x))
+	(lambda (x) (* x x) 3) -> 9
+	(define a 3)
+	(define square (lambda (x) (* x x)))
+	(define (square x) (* x x))
+	(square a) -> 9
+
+Concatenate
+	(define concat (lambda (l1 l2)
+		(if (null? l1)
+			l2
+			(cons (car l1) (concat (cdr l1) l2))))) 
+		(concat ‘(a b c) ‘(d e)) -> (a b c d e)
+
+Find Minimum Number of List
+	(define (min numlst)
+		(if (null? (cdr numlst))
+			(car numlst)
+			(if (< (car numlst) (min (cdr numlst)))
+				(car numlst)
+				(min (cdr numlst)))))
+		(min ‘(5 10 5 20 35)) -> 5
+
+Creating Functions in FL
+	- Basic Techniques:
+		- Tail Recursion
+			- Use continuation arguments (if necessary)
+			- Similar to pre-processing a list
+		- Inductive Construction
+			- Similar to post-processing a list
+
+Factorial
+	- Inductive Construction
+		(define (fact n)
+			(if (< n 2)
+				1
+				(* n (fact n-1))))	
+	- Tail Recursion
+		(define (fact n)
+			(letrec ((factHelper (lambda (n ProductThusFar)
+				(if (< n 2)  
+					productThusFar
+					(factHelper (- n 1) (* n (productThusFar))))))
+			(factHelper n 1)))
+
+Sum
+	- Inductive Construction
+		(define (sum x)
+			(if (null? x)
+				0
+				(+ (car x) (sum (cdr x)))))
+	- Tail Recursion
+		(define (sum x) (sum-helper x 0)
+		(define sum-helper x sumSoFar)
+			(if null? x)  
+				sumSoFar
+				(sum-helper (cdr x) (+ (car x) (sumSoFar))))
+
+High-Order Functions
+	- High-Order Functions
+		- Take a function as an argument OR Return an actual function as a result
+	- Example:  sort – takes comparison function
+	- Great for building other functions and systems
+	- Example in Scheme: map function
+		- Takes a function and a sequence of lists
+		- Applies function pair-wise to each element of the lists
+		- Returns a list the results
+		- Example:
+			(map * ‘(2 4 6) ‘(3 5 7))         (6 20 42)

@@ -1,0 +1,1 @@
+usage: /home/tsenter/public/cosc130/lab5/Ptrfun -copy|compare file1 file2

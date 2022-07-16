@@ -1,0 +1,5 @@
+1. if head == null then head must be updated to match pointer
+2. if head != null, if the first element in the list is used, need to update head, otherwise leave
+3. if an element in the middle of the list is used, need to update that pointer, and the prev element's next
+3. if no element in the list is used, and new memory needs to be allocated, then need to keep track of last element so it's next can be set
+4. if the whole list is allocated, need to make head null

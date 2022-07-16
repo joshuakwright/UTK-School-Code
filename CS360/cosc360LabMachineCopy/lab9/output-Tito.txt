@@ -1,0 +1,17 @@
+Chat Rooms:
+
+American-Idol:
+Art:
+Baseball:
+Bridge:
+Food:
+Movies:
+Music:
+Politics:
+Video-Games:
+Woodworking: Abby Thor
+
+Enter your chat name (no spaces):
+Enter chat room:
+Tito has joined
+Abby: You can hear them in the back room strummin'

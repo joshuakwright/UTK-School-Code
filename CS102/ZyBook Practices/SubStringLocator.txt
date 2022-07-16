@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+int FindNextSubstr(string inputString, int startIndex, string searchStr);
+
+   
+int main() {
+   string inputString;
+   int startIndex;
+   string searchStr;
+   
+   cin >> inputString;
+   cin >> startIndex;
+   cin >> searchStr;
+   
+   cout << FindNextSubstr(inputString, startIndex, searchStr) << endl;
+
+   return 0;
+}
+
+int FindNextSubstr(string inputString, int startIndex, string searchStr) {
+   unsigned int index = 0;
+   for (unsigned int i = startIndex; i < (inputString.size() - (searchStr.size() - 1)); i++) {
+        if (inputString.at(i) == searchStr.at(0)) {
+            for (unsigned int j = 0; j < searchStr.size(); j++) {
+               if (inputString.at(j + i) == searchStr.at(j)) {
+                  index++;  
+               }
+            }
+            if (index == searchStr.size()) {
+               return i;
+            }
+        }
+        index = 0;
+   }
+   if (index == 0) {
+      return -1;  
+   }
+}

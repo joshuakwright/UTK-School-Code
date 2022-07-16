@@ -1,0 +1,447 @@
+Things to do: 
+1. Read over all specified notes and take notes on those - done
+2. Take Practice tests and take notes on answers - 
+3. Read over unspecified notes
+4. Review notes and make sure is all understood
+
+Notes: 
+Chapter 1: 
+	Filesystems: 
+		- When you say "ls -a", it lists all the filenames in the current directory
+		- (If you don't say "-a", it will not list filenames beginning with ".") Note there are two filenames that are in every directory: "." and ".."
+		- The pwd command tells you the complete pathname of the current directory.
+		- Note that the parent directory of "/" is itself.
+	Programs and Processes: 
+		- If you go to another window, and type "ps x", it will list all of the processes that you are currently executing
+		- Program: A file that can be executed, either directly, or through the aid of interpreters, compilers, and/or linkers.
+		- Process: An executing instance of a program.
+	Signals: 
+		- Signal: An interruption of the program.
+		- Signal Handler: The mechanism by which the program may gracefully deal with signals.
+
+Introduction to System Calls (I/O System Calls): 
+	System Calls:
+		- System calls are expensive. While a procedure call can usually be performed in a few machine instructions, a system call requires the 
+		computer to save its state, let the operating system take control of the CPU, have the operating system perform some function, have the 
+		operating system save its state, and then have the operating system give control of the CPU back to you. This concept is important, and will be seen time and time again in this class.
+		- System calls are system dependent. Knowing this, it would not be a good idea to directly use system calls when portability cannot be 
+		neglected. System calls are also quite complex. Most often, it involves the duo of TRAP and RET (or some variations of those two). To 
+		implement system call, one would need specialized knowledge of I/O registers, the sequence of operations needed to use them; and most 
+		important of all, implement enough protection because I/O resources are generally shared among multiple users and/or processes.
+	System Calls for I/O:
+		- There are 5 basic system calls that Unix provides for file I/O.
+        		1.  int open(char *path, int flags [ , int mode ] );
+        		2.  int close(int fd);
+        		3.  int read(int fd, char *buf, int size);
+        		4.  int write(int fd, char *buf, int size);
+        		5.  off_t lseek(int fd, off_t offset, int whence);
+	Open: 
+		-  o1.c opens the file in1 for reading, and prints the value of the file descriptor. If you haven't copied over the file in1, then it 
+		will print -1, since in1 does not exist. If in1 does exist, then it will print 3, meaning that the open() request has been granted 
+		(i.e. a non-negative integer was returned). 3 is the file descriptor you obtained. Why 3? For each process, three I/O streams are opened 
+		by default, they are stdin, stdout and stderr. These three takes the file descriptors 0, 1 and 2.
+		- In order to open a new file for writing, you should open it with (O_WRONLY | O_CREAT | O_TRUNC) as the flags argument. 
+		- Finally, the 'mode' argument should only be used if you are creating a new file. It specifies the protection mode of the new file.
+	Close: 
+		- Close() tells the operating system that you are done with a file descriptor. The OS can then reuse that file descriptor.
+	Read: 
+		- Read() tells the operating system to read "size" bytes from the file opened in file descriptor "fd", and to put those bytes into the 
+		location pointed to by "buf". It returns how many bytes were actually read.
+		-  I null terminate c after the read() calls to ensure that printf() will understand it.
+		- Third, when read() returns 0, then the end of file has been reached. When you are reading from a file, if read() returns fewer bytes than 
+		you requested, then you have reached the end of the file as well.
+	Write: 
+		- Write() is just like read(), only it writes the bytes instead of reading them. It returns the number of bytes actually written, which is almost invariably "size".
+	Lseek: 
+		- All open files have a "file pointer" associated with them. When the file is opened, the file pointer points to the beginning of the file. As 
+		the file is read or written, the file pointer moves. For example, in r1.c, after the first read, the file pointer points to the 11th byte in in1. 
+		You can move the file pointer manually with lseek(). The 'whence' variable of lseek specifies how the seek is to be done -- from the beginning of 
+		the file, from the current value of the pointer, and from the end of the file. The return value is the offset of the pointer after the lseek.
+		- Example to find the length of a file: size = lseek(fd, (off_t) 0, SEEK_END);
+	Standard Input, Standard Output, and Standard Error: 
+		*****Maybe go back and look here if you have time*****
+
+Cat/Buffering: 
+	Simpcat: 
+		- First, what can we infer now about the standard I/O library? It uses buffering! In other words, when you first call getchar() or fread(), 
+		it performs a read() of a large number of bytes into a buffer. Thus, subsequent getchar() or fread() calls will be fast. When you attempt to 
+		fread() large segments of memory, the two exhibit the same behavior, as fread() doesn't need to buffer -- you are doing it for the subroutine.
+		Why then is getchar() faster than fread(c, 1, 1, stdin)? Because getchar() is optimized for reading one character, and fread() is not.
+		- What's the lesson behind this?
+			1. Buffering is a good way to cut down on too many system calls.
+			2. If you are reading small chunks of bytes, then use getchar() or fread(). They do buffering for you.
+			3. If you are doing single character I/O, use getchar() (or fgetc()).
+			4. If you are reading large chunks of bytes, then fread() and read() work about the same. However, you should use fread(), since it 
+			makes your programming more consistent, and because it does a little more error checking for you.
+		The same is true for writes, even though we didn't go through them in detail in class.
+	Standard I/O vs System calls: 
+		- System calls work with integer file descriptors. Standard I/O calls define a structure called a FILE, and work with pointers to these structs.
+	
+Links and Inodes: 
+	Links:
+		- Each physical file on disk has an associated data structure in the operating system, called an "inode". This inode contains information such 
+		as where the file is located on disk, its size, a special "inode number," which is unique, the protection mode, who owns the file, etc.
+		- The way we name a file is by attaching a "link" to the inode. Links are stored in "directories" -- each entry in a directory maps the name of 
+		the link to the inode number of the inode that points to the file.
+		- For example, when we say
+			UNIX> cat > f1
+			This is f1
+			^D
+			UNIX>
+		This creates a file on disk whose contents are the bytes:
+			"This is f1\n"
+		An inode is created for that file which points to that file's location on disk. Moreover, a link is created in the current directory. This link maps
+		 the name f1 to the inode just created.
+		- We can have more than one link point to a file. Suppose we've made file f1 above, and now we do the following:
+			UNIX> ln f1 f2
+		This says to create another link to the file f1, and call it "f2". Now we have two pointers to the same file. 
+		- When the last link to a file is removed, then the file itself, inode and all, is deleted. As long as there is a link pointing to a file, however, the file remains. 
+		- Every directory contains two subdirectories "." and ".." The first is a link to itself, and the second is a link to the parent directory. 
+		- Besides these links which are automatically created for you, you cannot manually create links to directories. Instead, there is a special kind of 
+		a link called a "soft link", which you make using the command "ln -s".
+		- Note that soft links have a different kind of directory listing. Moreover, note that the creation of a soft link to "test" doesn't update the link 
+		field of test's inode. That only records regular, or "hard" links.
+		- What is the main difference between hard and soft links then? Well, for one, if you delete all the hard links to a file, but not all the soft links, then the file still gets deleted.
+		- In unix, you cannot make hard links from a file in one filesystem to a directory in another filesystem. However, you can make a soft link
+
+Stat: 
+	- Stat is a command that you can use to get information about files -- information that is contained in the file's inode.
+	- the stat function gives you information about a file's inode. It can do this as long as the user has permission to get to the directory that contains the file.
+	- Use Example: exists = stat(argv[i], &buf);
+	- readdir() makes no guarantees about the ordering of files in a directory. 
+	- Why did I use strdup in the dll_append() call instead of de->d_name? The answer is subtle. The man page doesn't tell you anything about how the struct 
+	that readdir() returns is allocated. All that you can really assume is that until you make the next call to readdir() or closedir(), the value of what readdir() 
+	returns is ok. If we knew that readdir() mallocs space for the "struct dirent" that it returns, and that that space isn't free'd until the user calls free(), then 
+	we could readily put de->d_name into our dlist, and not worry about anything. However, with no such assurances from the man page, we have to call strdup. 
+	For example, opendir/readdir/closedir could be implemented as follows:
+		opendir() opens the directory file, and mallocs one "struct dirent".
+		readdir() reads the next directory entry into that one "struct dirent", and returns a pointer to it.
+		closedir() closes the directory file, and free's the "struct dirent".
+	- Finally, ls6.c performs the same function as "ls -F". That is, it prints directories with a "/" at the end, symbolic (soft) links with a "@", and executable 
+	files with a "*". We are able to do this by interpreting the "st_mode" field of the "struct buf".
+
+Prsize: recursive directory traversal: 
+	- This lecture covers the writing of a command prsize. What prsize does is return the number of bytes taken up by all files reachable from the current directory 
+	(excluding soft links). It is a good program as it illustrates using opendir/readdir/closedir, stat, recursion, building path names, and finding hard links.
+	- When enumerating files in ".", you come across the file ".". This is a directory, so you make a recursive call on it. This goes into an infinite loop until 
+	you run out of open file discriptors at which point opendir() fails. To fix this, you need to check and see whether or not you are trying to make a recursive
+	call to the "." directory. You need to check for ".." as well.
+	- The files f4 and f4-hard-link are links to the same file. However, prsize5 counts them as being different. So, what we need is for prsize to be able to recognize 
+	hard links, and only count them once. How do you recognize whether two files are links to the same disk file? You use the inode number. This is held in buf.st_ino.
+	- Now, the way we check for duplicate inodes is to maintain a rb-tree of inodes that we have seen so far. Before adding in the size of any file, we check to see if 
+	its inode is in the rb-tree. If so, we do nothing. Otherwise, we add in the size, and put the inode into the rb-tree. As inodes are ints, we can use jrb_insert_int 
+	and jrb_find_int to access and modify the red-black tree.
+	- Since we're using stat(), prsize6 doesn't recognize soft links, and thus we have the same infinite loop problem as before. It should be clear what we want -- instead 
+	of traversing the link to ".", we want prsize to count the size of the link itself (2 bytes for f5-soft-link and 1 byte for soft-link-to-.). Thus, all we need to do in 
+	prsize7.c is use lstat() instead of stat(). This gives information about the soft link itself, instead of the file to which the link points.
+	- What's happening is that the recursive calls to get_size() are made in between the opendir() and closedir() calls. That means that each time we make a recursive call, 
+	we add one to the number of open files. As Unix only allows a finite number of open files to be held by any one process, we get an error if we make too many nested recursive 
+	calls. The solution to this is to make sure that there are no open files when we make the recursive call. How do we do this? When enumerating the files in a directory, we 
+	put all directories into a dlist, and then after closing the directory file, we traverse the list and make the recursive calls. Note that we need to do a strdup() when we 
+	put the directories into the dlist.
+
+Assembler Lecture #1: 
+	Registers: 
+		- We'll assume that our machine has 8 general-purpose registers in the CPU. All are 4 bytes, and can be read or written by the user. The first five are named r0, r1, r2, r3, r4. The last three registers are special:
+			The sixth is named sp and is called the "stack pointer."
+			The seventh is named fp and is called the "frame pointer."
+			The eighth is named pc and is called the "program counter."
+		Additionally, the computer has three read-only registers, which always contain the same values:
+			g0, whose value is always zero.
+			g1, whose value is always one.
+			gm1, whose value is always negative one.
+		Finally, the computer also has two special registers that the user cannot access directly:
+			IR -- The instruction register. It holds the instruction currently being executed.
+			CSR -- The control status register. It contains information pertaining to the execution of the current and previous instructions.
+	The Instruction Cycle: 
+		- The computer's operation consists of running instructions repetitively. This is known as the instruction cycle. The instruction cycle consists of 4 general phases:
+			1. Decode instruction (in IR)
+			2. Execute instruction
+			3. Determine next instruction
+			4. Load next instruction into the IR
+		- We're going to assume that all of our instructions are 32 bits (although that's a naive assumption, it will work for our purposes). Instructions are stored as part 
+		of a program's memory, and the instruction that is pointed to by the pc register is the one that gets loaded into the IR for execution.
+		- In other words, if the pc contains the value 0x2040, then the IR is executing the instruction contained in the 4 bytes starting at memory address 0x2040.
+	Instructions: 
+		1. Memory <-> Register instructions:
+       			ld mem -> %reg        	Load the value of the register from memory.
+
+       			st %reg -> mem        	Store the value of the register into memory.
+		There are a few ways to address memory:
+       			st %r0 -> i         	Store the value of register r0 into the memory 
+       		                    		location of global variable i.
+	
+       			st %r0 -> [r1]      	Treat the value of register r1 as a pointer
+                           			to a memory location, and store the
+                           			value of r0 in that memory location.
+
+       			st %r0 -> [fp+4]    	Treat the value of the frame pointer as a
+                           			pointer to a memory location, and store the
+                           			value of r0 in the memory location 4 bytes 
+                           			after that location.  You can use any value, 
+                           			positive or negative, not just 4.  
+                           			However, you cannot use a register (i.e. 
+                           			you can't do st %r0 -> [fp+r2]).
+                           			This only works with the frame pointer.  It does
+                           			not work with any other register.
+                           
+       			st %r0 -> [sp]--    	Treat the value of register sp as a
+                           			pointer to a memory location, store the
+                           			value of r0 into that memory location, and then
+                           			subtract 4 to the value of sp.
+
+       			st %r0 -> ++[sp]    	Treat the value of register sp as a
+                           			pointer to a memory location. First, add 4 to
+                           			that value, then store the
+                           			value of r0 into that memory location.
+
+		2. Register <-> Register instructions:
+       			mov %reg -> %reg    	Copy a register's value to another
+       			mov #val -> %reg    	register, or set its value to a constant.
+		All arithmetic goes from register to register:
+       			add %reg1, %reg2 -> %reg3   Add reg1 & reg2 and put the sum in reg3.
+       			sub %reg1, %reg2 -> %reg3   Subtract reg2 from reg1.
+       			mul %reg1, %reg2 -> %reg3   Multiply reg1 & reg2.
+       			idiv %reg1, %reg2 -> %reg3  Do integer division of reg2 into reg1.
+       			imod %reg1, %reg2 -> %reg3  Do reg1 mod reg2.
+		There are two special instructions that let you perform addition and subtraction on the stack pointer:
+       			push %reg           	This subtracts the value of stack pointer
+       			push #val           	by value contained in reg or the constant defined in val.
+
+       			pop %reg            	This adds the value of %reg or #val 
+       			pop #val            	to the stack pointer.
+		
+		3. Control instructions
+       			jsr a	           	Call the subroutine starting at instruction a.
+       			ret		   	Return from a subroutine.
+		
+		- Finally, there are also "directives" which are not really code, but specify that memory must be allocated for variables. For example:
+       			.globl i           	Allocate 4 bytes in the globals segment
+                          			for the variable i.
+		- The program counter points to where the instruction register must go to load its value. On normal instructions, the pc is incremented 
+		by 4 so that the next instruction can be loaded. On control instructions, the pc gets a new value, allowing the machine to call subroutines, perform "if-then" statements, etc.
+	The Address Space:
+		- Each program's view of its memory is called an "address space". Typically an address space is broken up into 4 parts: The code, globals, heap, and stack. The code holds 
+		nothing but instructions. The globals is where global variables are stored, and the heap is where malloc'd storage lives. The stack is for temporary storage, like local variables and arguments for procedures.
+		- Generally, a process treats memory like a huge array of bytes, however, the bytes are organized logically into units of 4 bytes each, as that is the size of registers. We 
+		assume that this memory is of size 0x80000000 (this is hexidecimal). Some machines, like our sparcs, assume it is 0x100000000, but we'll assume the smaller size here. 
+		The code starts at address 0 (typically, at a higher address, but for simplicity, we'll say zero here). The globals follow the code, and the heap follows the globals. Note 
+		that as a program executes, the heap and stack might grow and shrink, but the code and globals stay the same size. The stack grows from back to front, starting at address 
+		0x80000000 (actually, starting at 0x7fffffff), and growing towards the heap. In between the heap and stack is unused memory.
+		- Example Assembly code: 
+			int i;
+			int j;
+			main()
+			{
+  				i = 1;
+ 			 	j = 2;
+  				j = i + j;
+			}
+		Will compile into the following assembly code:
+				.globl i
+				.globl j
+    			main:
+				mov #1 -> %r0              / i = 1
+				st  %r0 -> i
+				mov #2  -> %r0             / j = 2
+				st  %r0 -> j
+				ld  i   -> %r0             / j = i + j
+				ld  j   -> %r1
+				add %r0,%r1  -> %r1
+        			st  %r1 -> j
+        			ret
+		This code is pretty straightforward. Each instruction in C has a corresponding set of instructions in assembler. Unless your compiler is smart, it will produce 
+		inefficient code. For example, you can probably see that:
+				.globl i
+				.globl j
+    			main:
+				mov #1  -> %r0
+				mov #2  -> %r1
+				add %r0,%r1  -> %r1
+        			st  %r1 -> j
+				st  %r0 -> i
+        			ret
+		would work just as well, and has fewer instructions. 
+		- Now, suppose instead that we had the following code to run:
+			main()
+			{
+  				int i, j;
+
+  				i = 1;
+  				j = 2;
+  				j = i + j;
+			}
+		Since i and j are local variables, they must come from temporary storage: The stack. How does the stack work? It is governed by the sp and fp registers. 
+		The sp and fp designate what is known as a "frame" on the stack. The fp points to the bottom of the frame, and the sp points to the top. All memory locations 
+		above (less than) the stack pointer are considered unused. Thus, we can get new temporary memory by decrementing the sp, thus putting memory locations into the current stack frame.
+		For example, When a procedure is first called, these two registers point to the same place in the stack. The frame is considered empty.
+		- To allocate room for the two local variables i and j, we decrement the stack pointer by 8. This allocates two 4-byte quantities in the current stack frame: 
+		By convention, we'll call the lower one j, and the upper one i. This is something that the compiler defines. We could just as easily have called the lower one i, and the upper one j.
+		- Let's look at what happens when main() is executed: the fp and sp point to the base of the empty stack frame. The pc points to the beginning of the main routine.
+		This is the instruction "push #8". When this is done executing, we have the following: Space has been allocated on the current stack frame for i and j, and the pc has been incremented. 
+		It now points to the instruction "mov 1 -> %r0" 
+		This puts the machine into the following state: Now, the pc points to "st %r0 -> [fp-4]". When this is done, the location for i is set to the value 1.
+		*****Refer to this section for a good illustration of how the stack works*****
+		- In the register <--> memory operation
+			>                    st %r0 --> [r1]
+			>   the notes said "... treat the value of register r1 as a pointer to a memory
+			>   location ...". Except for the pc, fp and the sp do we ever know where in 
+			>   memory a register is pointing ?
+		You can assume that the pc points to the code, and the fp/sp both point to memory in the stack. Even these assumptions can be violated in some systems if \ you are doing complex stuff 
+		(I won't go into it). Otherwise, you cannot assume that a register is pointing to a specific memory segment. r1's pointer can point to the code, globals, heap or stack.
+
+Assembler Lecture #2: 
+	- How function calls work with the stack
+	Look at the following C code:
+		int a()
+		{
+  			return 1;
+		}
+
+		main()
+		{
+  			int i;
+
+  			i = a();
+		}
+	This compiles into assembler that looks like the following:
+    		a:
+			mov #1 -> %r0
+			ret
+    		main:
+			push #4
+			jsr a
+			st %r0 -> [fp]
+			ret
+	So, both of these are straightforward. Main() first allocates one variable on the stack, and then calls "jsr a", which means jump to subroutine a. Once a returns, it stores the 
+	value in register r0 to the local variable i, which has been allocated to be the variable pointed to by the frame pointer. Then main() exits. A() is straightforward as well. It 
+	returns the value 1 by storing it in register r0, and then returning.
+	This seems simple, but what goes on when jsr and ret are called is a little trickier. This is what happens:
+	When "jsr" is called, (pc+4) and the current value of fp are both stored on the top of the stack. Then, the fp is changed to be the current sp, and pc is changed to be the location 
+	of the first instruction of the named procedure. This is done atomically by the computer's hardware. After jsr has taken effect, we are in a new stack frame, and the pc is executing a().
+	When "ret" is called, the sp is changed to be the current fp. Then the fp is popped off the stack: it is set to be the top stack value, and the sp is decremented by 4. Finally, the 
+	pc is popped off the stack: it is set to be the top stack value, and the sp is again decremented by 4. Like "jsr", this is all done atomically by the hardware. When "ret" completes, 
+	the pc is set to be the instruction after the original "jsr", and the stack frame of that procedure has been restored.
+	- When calling a function with multiple arguments: Arguments are passed by the calling procedure by pushing them onto the stack in reverse order (here there is only one argument), and then calling jsr.
+
+	Register Spilling: 
+		- The act of saving a register's value before the body of a procedure call and restoring it afterwards is called spilling.
+		- Note, that you have to spill r2 onto the stack after allocating the local variable. Otherwise, k will not be at [fp]. Think about it.
+	Some Code with Pointers:
+		- When pointer arithmetic is involved -- then you must remember to multiply by the size of the item being pointed to.
+		- Array Dereferencing. Array dereferencing is much like pointer dereferencing. You multiply the array index by the item's size, then add it to the top of the array. Then dereference that value.
+			a(int *p)
+			{
+  				int i;
+  
+  				i = p[0];
+  				i = p[5];
+  				i = p[i];
+			}
+		These are three types of array dereferencing. In the first, we will simply load p into r0 and dereference it. In the second, we load p, add 20, and dereference. In the third, we have to 
+		multiply i by 4, add that to p, then dereference.
+		- Note, if the compiler already knows values, it can do multiplication and addition at compile time, rather than putting it into the code. 
+		This concept is also at work when you declare an array as a local variable:
+
+			main()
+			{
+  				int a[5];
+
+  				a[2] = 3;
+			}
+		We allocate a by calling "push #20". The compiler knows, at compile time, that:
+			a[0] will be at [fp-16]
+			a[1] will be at [fp-12]
+			a[2] will be at [fp-8]
+			a[3] will be at [fp-4]
+			a[4] will be at [fp]
+
+Stack Printing Programs: 
+	- To understand the structure of a stack: 
+		main()
+		{
+  			int *a, a2[3], i;
+ 
+  			i = 6;
+  			a = &i;
+  			a2[1] = i+2;
+  			*a = 200;
+  			*(a2+2) = i+5;
+		}
+	i will be [fp].
+	a2[0], a2[1] and a2[2] will be [fp-12], [fp-8] and [fp-4].
+	a will be [fp-16].
+
+Setjmp:
+	setjmp()/longjmp(): 
+		- Setjmp() and longjmp() are subroutines that let you perform complex flow-of-control in C/Unix.
+		- One of the keys to understanding setjmp() and longjmp() is to understand machine layout, as described in the assembler and
+		malloc lectures of the past few weeks. The state of a program depends completely on the contents of its memory (i.e. the code, globals, heap, and stack), 
+		and the contents of its registers. The contents of the registers includes the stack pointer (sp), frame pointer (fp), and program counter (pc). What setjmp() 
+		does is save the contents of the registers so that longjmp() can restore them later. In this way, longjmp() ``returns'' to the state of the program when setjmp() was called.
+			Specifically:
+				#include < setjmp.h >
+				int setjmp(jmp_buf env);
+		This says to save the current state of the registers into env. If you look in /usr/include/setjmp.h, you'll see that jmp_buf is defined as:
+			#define _JBLEN  9
+			typedef struct { int _jb[_JBLEN + 1]; } jmp_buf[1];
+		This is an irritating way of saying that jmp_buf is an array of _JBLEN+1 integers.
+		So, when you call setjmp(), you pass it the address of an array of integers, and it stores the value of the registers in that array. Setjmp() returns 0 when you call it in this way.
+			longjmp(jmp_buf env, int val);
+		Longjmp() resets the registers to the values saved in env. This includes the sp, fp and pc. What this means is that longjmp() doesn't return. Instead, when you call it, you return 
+		as if you have just called the setjmp() call that saved env. This is because the pc is restored along with the other registers. Setjmp() returns the val argument of longjmp(), which is not 
+		allowed to be zero (read the man page). Thus, you know when setjmp() returns a non-zero value that longjmp() was called, and is returning to setjmp().
+		- Setjmp() and longjmp() are usually used so that if an error is detected within a long string of procedure calls, the error may be dealt with gracefully by a high-level call.
+		- Now, setjmp() saves all the registers, including the sp and fp. What this means is that if you return from a procedure that calls setjmp(), then the env buffer of that setjmp() will no longer 
+		be valid. Why? Because that env buffer contains the sp and fp of the calling procedure. If that procedure returns, then when you restore the sp and fp, the stack will be in a different state than 
+		before, and you will have an error.
+		- This is a very common bug with setjmp() and longjmp() -- to use them properly, you CANNOT RETURN FROM THE PROCEDURE THAT CALLS setjmp().
+		- One of the nice things about setjmp() and longjmp() is that you can longjmp() out of a signal handler, and back into your program. This lets you catch those signals again.
+
+Practice Test Notes: 
+	- A 0 in a character array is the same as the null terminating character
+	- 	char buf[12];
+  		int *ip;
+  		int i;
+ 
+  		ip = (int *) buf;
+  		for (i = 0; i < 12; i++) buf[i] = 0;
+
+  		strcpy(buf+1, "ABEF");
+  		printf("1. 0x%x\n", ip[0]);
+  		printf("2. 0x%x\n", ip[1]);
+
+	This will print: 
+		1. 0x45424100
+		2. 0x46
+	because the ip pointer is an int* so it's indexes are in 4-byte increments and it's stored in little endian.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

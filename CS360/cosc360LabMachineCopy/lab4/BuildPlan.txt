@@ -1,0 +1,32 @@
+tarc layout: 
+
+1. Open the specified directory - done
+2. Print every item in the directory - done
+    - Use recursion to navigate directories
+3. Add conditions to exclude '.', '..', and any soft links - done
+4. Add conditions to recoginze multiple hard links - done
+5. Ouput file contents to stdout - done
+6. Use stat / (other needed system calls) to print out file info - done
+    - according to requirements in lab writeup
+7. add code to convert all info to correct binary form - done
+8. Close files and directories as they are no longer needed - done
+
+tarx layout: 
+
+1. write code to read in header directory
+    - read of stdin
+    - read file name size
+    - read file name
+    - read inode
+    - read mode
+    - read modification time
+    - output to stdout in correct form for testing
+2. create loop to read in all info and print to stdout
+    - create jrb tree to store inodes
+    - alter read function to read in what it needs to
+    - creat file struct to store file details
+    - write recursive function to open and create files/directories
+    - only set directory mode after all it's contents have been created
+3. Write function to create directory with correct info
+4. use info to create all files and directories correctly
+    - must create all files and subdirectories before setting permissions on each directory

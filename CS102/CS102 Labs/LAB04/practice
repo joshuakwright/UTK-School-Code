@@ -1,0 +1,17 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main(){
+
+	vector<double> myvector = {1.1, 2.2, 3.3, 4.4};
+	
+	myvector.push_back(7.22);
+
+	usinged int i;
+	for (i = 4; i >= 0; i--){
+		cout << myvector.at(i) << "\n";
+	}
+
+	return 0;
+}

@@ -1,0 +1,25 @@
+Ethics
+- What is it?
+	- Seeks to answer "What is moral?" or "How should we live?"
+	- Applied branch of phisosophy 
+- Why do we care?
+	- Integrity
+	- Part of being professionsal
+	- Fundamental to meaning of life
+- What is right and wrong?
+	- No what is legal?
+- Citizens have ethical responsibilities
+- Professionals have addititonal ones
+	- no deception
+	- avoid conflicts of interests
+	- faithful to client
+	- follow ethics guidelines (such as of IEEE or ACM)
+- Professional Ethics
+	- Technical question: can somehting be done
+	- Ethical question: should it be done?
+- Ethical Theory
+	- Framework for
+		- Underlying rationale
+		- Classify and understand argument
+		- Defend conclusions about right and wrong
+- Normative (or prescriptive) vs Relative (or descriptive)

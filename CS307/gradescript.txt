@@ -1,0 +1,1 @@
+~ssmit285/public/gradescripts/cs302_jg/lab2/gradeall.sh

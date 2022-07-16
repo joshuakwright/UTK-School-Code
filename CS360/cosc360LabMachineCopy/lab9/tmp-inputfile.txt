@@ -1,0 +1,21 @@
+START Dontonio Woodworking
+START Frenchy Woodworking
+END Dontonio
+START The-Donald Woodworking
+START Abby Woodworking
+START Keroppi Woodworking
+START Gus Woodworking
+END The-Donald
+END Keroppi
+END Gus
+START Gallant Woodworking
+END Gallant
+START Thor Woodworking
+END Frenchy
+START Tito Woodworking
+Abby: You can hear them in the back room strummin'
+END Tito
+START Sunshine Woodworking
+END Thor
+END Abby
+END Sunshine

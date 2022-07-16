@@ -1,0 +1,13 @@
+Joshua Wright CS 307 HW 5.1 
+
+1 [..] <-> [B] <-> [E] <-> [K] <-> [G] <-> [S] <-> [..]
+		            p       q
+
+2 [..] <-> [B] <-> [E] <-> [G] <-> [K] <-> [S] <-> [..]
+				    p       q 
+
+            L               M                       R
+3 [..] <-> [B] <-> [E] <-> [G] <-> [K] <-> [S] <-> [..]
+					   p q
+
+Stopping Criterion: When (p == q && q->next == R) || (q == R)

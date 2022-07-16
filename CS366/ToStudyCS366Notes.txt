@@ -1,0 +1,587 @@
+---------- Basic Security Concept ----------
+
+Building an attack
+	• Adversaries (generally) approach this process by keeping in mind
+	• Their end goal
+	• What unfounded assumptions/mistakes/bugs they have found
+	• Each assumption by itself might not directly lead to undermining a security property
+	• But one bug might lead to the ability to create another….
+	• The challenge for an attacker is to find these little flaws, and chain them together into something bigger….
+
+---------- Think Like a Defender ----------
+
+Thinking like a Defender
+	• If you only remember these things, you’ll be okay (mostly):
+	• Assume the adversary knows everything à don’t try to hide!
+	• You can plan for attacks à build in security controls
+	• Security is not free, but it is essential à you must weigh the cost to an organization with the benefit of added engineering efforts
+
+Security mindset
+	• To anticipate attackers, we must be able to think like attackers
+	• The ability to view a large, complex system and be able to reason about:
+	• What are the potential security threats?
+	• What are the hidden assumptions?
+	• Aare the explicit assumptions true?
+	• How can we mitigate the risks of the system?
+
+Annual Loss Expectancy
+	• How much does a vulnerability cost us?
+	• Actuary sciences give us a way to quantify this
+	• Annual Rate of Occurrence * Single Loss Expectancy = ALE
+	Example:
+		- Vulnerability A happens twice a year, and costs $1k per incident
+			2 * $1,000 = $2,000 ALE
+		- Vulnerability B happens once every ten years, costs $10k per incident
+			0.1 * $10,000 = $1,000 ALE
+
+Adjusted ALE
+	• Security mechanisms will do one or both of….
+		• Reduce the ARO (stop attacks from happening)
+			• Annualized rate of occurrence
+		• Reduce the SLE (mitigate the effects of the attack)
+			• single loss expectancy
+	• Security comes at a cost
+		• Performance
+		• Dollars
+	• We can compare the efficiency of different security solutions
+		• Calculate the ALE before the solution
+		• Calculate the ALE after (Adjusted ALE, or AALE)
+		• Net benefit of system is ALE - AALE - annual cost of system
+
+An Example: DDoS
+	- A DDoS incident costs $10k per incident, we expect 2 attacks per year.
+		ALE = $10,000 * 2 = $20,000
+	- Defense X costs $1k / year, does not change the number of attacks per year, but reduces the cost of each incident to $5k.
+	- Defense Y costs $19k / year, does not change the cost of an incident, but reduces the likelihood of an attack to once every 10 years.
+	- Which is better?
+		- Defense X:
+			AALE = $5,000 * 2 = $10,000
+			$20,000 - $10,000 - $1,000 = $9,000 benefit (ALE - AALE - Cost)
+		- Defense Y:
+			$10,000 * 0.1 = $1000
+			$20,000 - $1,000 - $19,000 = $0 benefit
+
+---------- Software Security: Memory layout ----------
+
+Stack layout when calling function
+	- Arguments pushed in reverse order of code
+	- Local variables pushed in the same order as they appear in the code
+
+EBP (Base Pointer): Notation
+	• %ebp: A memory address
+	• (%ebp): The value at memory address %ebp (like dereferencing a pointer)
+
+Stack & functions: Summary
+	- Calling function (before calling):
+		1. Push arguments onto the stack (in reverse)
+		2. Push the return address, i.e., the address of the instruction you want run after control returns to you: e.g., %eip + 2
+		3. Jump to the function’s address
+	- Called function (when called):
+		1. Push the old frame pointer onto the stack: push %ebp
+		2. Set frame pointer %ebp to where the end of the stack is right now: %ebp=%esp
+		3. Push local variables onto the stack; access them as offsets from %ebp
+	- Called function (when returning)
+		1. Reset the previous stack frame: %esp = $ebp; pop %ebp
+		2. Jump back to return address: pop %eip
+
+Example of stack based buffer overflow on slide 32
+
+---------- Countermeasuers ---------
+
+Countermeasures
+	- Developer approaches:
+		• Use of safer functions like strncpy(), strncat() etc, safer dynamic link libraries that check the length of the data before copying.
+	- OS approaches:
+		• ASLR (Address Space Layout Randomization)
+	- Compiler approaches:
+		• Stack-Guard
+	- Hardware approaches:
+		• Non-Executable Stack
+
+---------- Other Software Vulnerabilities -----------
+
+Steps: system(“/bin/sh”)
+	• Find the address of system()
+		• To overwrite return address with system()’s address.
+	• Find the address of the “/bin/sh” string
+		• To run command “/bin/sh” from system()
+	• Construct arguments for system()
+		• To find location in the stack to place “/bin/sh” address (argument for system())
+
+Task A : To Find system()’s Address.
+	● In Linux, when a program runs, the libc library will be loaded into memory.
+	● Debug the vulnerable program using gdb
+	● Using p (print) command, print address of system() and exit().
+
+Task B : To Find “/bin/sh” String Address
+	● Using buffer overflow à “/bin/sh” is overwritten in memory
+	● Can you recall how the stack layout looks like?
+	- Look at slide 39 for example of this
+
+- Format String Vulnerabilities
+
+Format String
+	- printf() - To print out a string according to a format.
+		int printf(const char *format, …);
+	- The argument list of printf() consists of :
+		● One concrete argument format
+		● Zero or more optional arguments
+	- Hence, compilers don’t complain if less arguments are passed to printf() during invocation.
+
+How printf() Works
+	● Here, printf() has three optional arguments. Elements starting with “%” are called format specifiers.
+	● printf() scans the format string and prints out each character until “%” is encountered.
+	● printf() calls va_arg(), which returns the optional argument pointed by va_list and advances it to the next argument. 
+
+How printf() Works
+	● When printf() is invoked, the arguments are pushed onto the stack in reverse order.
+	● When it scans and prints the format string, printf() replaces %d with the value from the first optional argument and prints out the value.
+	● va_list is then moved to the position 2.
+
+Missing Optional Arguments
+	● va_arg() macro doesn’t understand if it reached the end of the optional argument list.
+	● It continues fetching data from the stack and advancing va_list pointer.
+
+Vulnerable Program’s Stack
+	- Inside printf(), the starting point of the optional arguments (va_list pointer) is the position right above the format string argument.
+
+What Can We Achieve?
+	Attack 1 : Crash program
+	Attack 2 : Print out data on the stack
+	Attack 3 : Change the program’s data in the memory
+	Attack 4 : Change the program’s data to specific value
+	Attack 5 : Inject Malicious Code
+
+Attack 1 : Crash Program
+	● Use input: %s%s%s%s%s%s%s%s
+	● printf() parses the format string.
+	● For each %s, it fetches a value where va_list points to and advances va_list to the next position.
+	● As we give %s, printf() treats the value as address and fetches data from that address. If the value is not a valid address, the program crashes.
+
+Attack 2 : Print Out Data on the Stack
+	● Suppose a variable on the stack contains a secret (constant) and we need to print it out.
+	● Use user input: %x%x%x%x%x%x%x%x
+	● printf() prints out the integer value pointed by va_list pointer and advances it by 4 bytes. 
+	● Number of %x is decided by the distance between the starting point of the va_list pointer and the variable. It can be achieved by trial and error.
+
+Attack 3 : Change Program’s Data in the Memory
+	Goal: change the value of var variable from 0x11223344 to some other value.
+		● %n: Writes the number of characters printed out so far into memory.
+		● printf(“hello%n”,&i) ⇒ When printf() gets to %n, it has already printed 5 characters, so it stores 5 to the provided memory address.
+		● %n treats the value pointed by the va_list pointer as a memory address and writes into that location.
+		● Hence, if we want to write a value to a memory location, we need to have it’s address on the stack.
+
+---------- Operating System Security ----------
+
+Attacks via User Inputs: Examples
+	• CHSH – Change Shell
+		• Set-UID program with ability to change default shell programs
+		• Shell programs are stored in /etc/passwd file
+	• Attackers could create a new root account
+		• chsh –s /bin/zsh\n root:$6$xxxxxxxx:0:0:…
+
+Attacks via System Inputs: Examples
+	• Race Condition
+		• Symbolic link to privileged file from an unprivileged file
+		• Influence programs
+		• Writing inside world writable folder
+
+Attacks via Environment Variables
+	• Behavior can be influenced by inputs that are not visible inside a program. 
+	• Environment Variables : These can be set by a user before running a program.
+	• PATH Environment Variable
+		• Used by shell programs to locate a command if the user does not provide the full path for the command
+		• system(): call /bin/sh first
+		• system(“ls”)
+			• /bin/sh uses the PATH environment variable to locate “ls”
+			• Attacker can manipulate the PATH variable and control how the “ls” command is found
+
+Capability Leaking
+	• In some cases, Privileged programs downgrade themselves during execution
+	• Example: The su program
+		• This is a privileged Set-UID program
+		• Allows one user to switch to another user (say user1 to user2 )
+		• Program starts with EUID as root and RUID as user1
+		• After password verification, both EUID and RUID become user2’s (via privilege downgrading)
+	• Such programs may lead to capability leaking
+		• Programs may not clean up privileged capabilities before downgrading
+	- See example on slide 23
+	- How to fix the program?
+		- Destroy the file descriptor before downgrading the privilege (close the file)
+	
+Invoking Programs
+	• Invoking external commands from inside a program
+	• External command is chosen by the Set-UID program
+		• Users are not supposed to provide the command (or it is not secure)
+	• Attack:
+		• Users are often asked to provide input data to the command.
+		• If the command is not invoked properly, user’s input data may be turned into command name. This is dangerous. 
+
+Invoking Programs : Unsafe Approach
+	• The easiest way to invoke an external command is the system() function.
+	• This program is supposed to run the /bin/cat program.
+	• It is a root-owned Set- UID program, so the program can view all files, but it can’t write to any file.
+	- Question: Can you use this program to run other command, with the root privilege?
+
+Invoking Programs Safely: using execve()
+	- Why is it safe?
+	- Code (command name) and data are clearly separated; there is no way for the user data to become code
+
+Additional Consideration
+	• Some functions in the exec() family behave similarly to execve(), but may not be safe
+	• execlp(), execvp() and execvpe() duplicate the actions of the shell. These functions can be attacked using the PATH Environment Variable
+
+---------- Crypto ----------
+
+Symmetric vs Asymmetric
+				Symmetric 			Asymmetric
+	Confidentiality 	Block & Stream Ciphers		Public Key Encryption					
+	Integrity Message 	Authentication Codes (MAC)	Digital Signatures
+
+How to make it non-deterministic?
+	• The randomness is called an initial vector, or IV
+	• Sent in the clear at the start of the message
+	• The adversary knows it
+	• Two encryptions of the same plain text, with different IVs, will have different cipher texts
+	• In a secure mode, the IV leaks no information about the plaintext
+
+Cipher Block Chaining (CBC) Mode
+	• The main purpose of IV is to ensure that even if two plaintexts are identical, their ciphertexts are still different, because different IVs will be used.
+	• Decryption can be parallelized
+	• Encryption cannot be parallelized
+
+Properties of CBC
+	• Randomized encryption: repeated text gets mapped to different encrypted data.
+		• IV must be randomly chosen to get this benefit
+	• Each ciphertext block depends on all preceding plaintext blocks.
+	• Usage: IV must be random, needs integrity but not confidentiality
+		• The IV is not secret (it is part of ciphertext)
+		• The adversary cannot control the IV
+
+--- #2 MESSAGE AUTHENTICATION CODE (MAC) ---
+
+Message Authentication Code (MAC)
+	• Way to provide message integrity check
+		• Goal: Prevent an adversary from modifying the message
+	• Symmetric key integrity checks involve a block cipher
+		• Generation algorithm: takes as input, data and a key, yields a tag
+		• Verification algorithm: takes as input, data, a key, and a tag, returns if that tag is valid for that data and key
+	• Altering the data or tag without knowing the key results in verification failing!
+
+--- ONE-WAY HASH FUNCTIONS ---
+
+Applications of One-Way Hash Functions
+	• Integrity Verification
+	• Password Verification
+	• Trusted Timestamping
+
+Digital Signatures
+	• Provide Integrity
+	• Generate the signature with my private key
+	• Anyone can validate it with my public key
+	• Key Use is inverse of encryption
+	• In practice, message may be long resulting in long signature and more computing time
+	• Instead, we generate a cryptographic hash value from the original message, and only sign the hash
+
+--- APPLICSTIONS OF ASYMMETRIC CRYPTO ---
+
+Applications: Authentication
+	• Typical way to conduct authentication is to use passwords
+	• Disadvantage:
+		• A sends password to B: B can get hacked and A may use same password for multiple accounts
+		• cannot be used for many parties to authenticate a single party
+	• Fundamental problem: password authentication depends on a shared secret
+	- Solution:
+		• Making the encryption and decryption keys different
+		• generate the authentication data using one key, and verify the data using a different key
+	- SSH Case Study
+		• SSH uses public-key based authentication to authenticate users
+		• Generate a pair of public and private keys: ssh-keygen -t rsa
+			• private key: /home/seed/.ssh/id_rsa
+			• public key: /home/seed/.ssh/id_rsa.pub
+		• For Server:
+			• send the public key file to the remote server using a secure channel
+			• add public key to the authorization file~/.ssh/authorized_keys
+			• Server can use key to authenticate clients
+
+--- How PKI Defeats the MITM Attack ---
+
+How PKI Defeats the MITM Attack
+	• Assume that Alice wants to visit https://example.com
+	• When the server sends its public key to Alice, an attacker intercepts the communication. The attacker can do the following things:
+		• Attacker forwards the authentic certificate from example.com
+		• Attacker creates a fake certificate
+		• Attacker sends his/her own certificate to Alice
+
+The Importance of Verifying Common Name
+	• During TLS/SSL handshake browsers conduct two important validations
+		1) Checks whether the received certificate is valid or not.
+		2)Verifies whether the subject (Common Names) in the certificate is the same as the hostname of the server.
+	• Not verifying the common name is a common mistake in software 
+
+The Man-In-The-Middle Proxy
+	• Proxy creates a self-signed CA certificate, which is installed on the user’s browser
+	• The routing on the user machine is configured; all outgoing HTTPS traffic is directed towards the proxy machine
+	• When user tries to visit an HTTPS site:
+		• Proxy intercepts communication
+		• Creates a fake certificate
+		• Browser already has the proxy’s certificate in its trusted list to be able to verify all the fake certificates
+		• Proxy becomes MITM 
+
+---------- Attacks on TCP ----------
+
+SYN Flooding Attack
+	● When flooding the server with SYN packets, we need to use random source IP addresses; otherwise the attacks may be blocked by the firewalls.
+	● The SYN+ACK packets sent by the server may be dropped because forged IP address may not be assigned to any machine. If it does reach an existing machine, a RST packet
+	will be sent out, and the TCB will be dequeued.
+	● As the second option is less likely to happen, TCB records will mostly stay in the queue. This causes SYN Flooding Attack
+
+Countermeasures: SYN Cookies
+	● After a server receives a SYN packet, it calculates a keyed hash (H) from the information in the packet using a secret key that is only known to the server.
+	● This hash (H) is sent to the client as the initial sequence number from the server. H is called SYN cookie.
+	● The server will not store the half-open connection in its queue.
+	● If the client is an attacker, H will not reach the attacker.
+	● If the client is not an attacker, it sends H+1 in the acknowledgement field.
+	● The server checks if the number in the acknowledgement field is valid or not by recalculating the cookie.
+
+TCP Reset Attack
+	- Goal: To break up a TCP connection between A and B.
+	- Spoofed RST (Reset) Packet: The following fields need to be set correctly:
+		● Source IP address, Source Port,
+		● Destination IP address, Destination Port
+		● Sequence number (within the receiver’s window)
+
+---------- Web Security: SQL Injection ----------
+
+Countermeasures: Filtering and Encoding Data
+	• Before mixing user-provided data with code, inspect the data. Filter out any character that may be interpreted as code.
+	• Special characters are commonly used in SQL Injection attacks. To get rid of them, encode them.
+	• Encoding a special character tells parser to treat the encoded character as data and not as code.
+	• PHP’s mysqli extension has a built-in method called mysqli::real_escape_string(). It can be used to encode the characters that have special meanings in SQL.
+
+Countermeasures: Prepared Statement
+	• Fundament cause of SQL injection: mixing data and code
+	• Fundament solution: separate data and code.
+	• Main Idea: Sending code and data in separate channels to the database server. This way the database server knows not to retrieve any code from the data channel.
+	• How: using prepared statement
+	• Prepared Statement: It is an optimized feature that provides improved performance if the same or similar SQL statement needs to be executed repeatedly. Using prepared
+	statements, we send an SQL statement template to the database, with certain values called parameters left unspecified. The database parses, compiles and performs query
+	optimization on the SQL statement template and stores the result without executing it. We later bind data to the prepared statement
+		- Using prepared statements, we separate code and data
+
+---------- Web Security: Cookie ----------
+
+Why use cookies?
+	• Personalization
+		• Let an anonymous user customize your site
+		• Store font choice, etc., in the cookie
+	• Tracking users
+		• Advertisers want to know your behavior
+		• Ideally build a profile across different websites
+			• Read about iPad on CNN, then see ads on Amazon?!
+		• How can an advertiser (A) know what you did on another site (S)?
+
+Session hijacking
+	• Sending cookies over unencrypted HTTP is a very bad idea
+	• If anyone sees the cookie, they can use it to hijack the user's session
+	• Attacker sends victim's cookie as if it was their own
+	• Server will be fooled
+• Firesheep (2010)
+
+Session hijacking mitigation
+	• Use Secure cookie attribute to prevent cookie from being sent over unencrypted HTTP connections
+	• Set-Cookie: key=value; Secure
+
+---------- Cross Site Request Forgery (CSRF) ----------
+
+Cross-Site Requests and Its Problems
+	● When a page from a website sends an HTTP request back to the website, it is called same-site request.
+	● If a request is sent to a different website, it is called cross-site request because where the page comes from and where the request
+	goes are different.
+		Eg : A webpage (not Facebook) can include a Facebook link, so when users click on the link, HTTP request is sent to Facebook.
+
+Cross-Site Requests and Its Problems
+	● When a request is sent to example.com from a page coming from example.com, the browser attaches all the cookies
+	belonging to example.com.
+	● Now, when a request is sent to example.com from another site (different from example.com), the browser will attach the
+	cookies too.
+	● Because of above behaviour of the browsers, the server cannot distinguish between the same-site and cross-site requests
+	● It is possible for third-party websites to forge requests that are exactly the same as the same-site requests.
+	● This is called Cross-Site Request Forgery (CSRF).
+
+Cross-Site Request Forgery
+	● Target: User who has some sort of account on a vulnerable server where requests from the user’s browser to the server have a predictable structure
+	● Attack goal: make requests to the server via the user’s browser that look to the server like the user intended to make them
+	● Attacker tools: ability to get the user to visit a web page under the attacker’s control
+	● Key tricks:
+		○ Requests to the web server have predictable structure
+		○ User of something like <img src=…> to force the victim to send it
+
+Fundamental Causes of CSRF
+	● The server cannot distinguish whether a request is cross-site or same-site
+		○ Same-site request: coming from the server’s own page. Trusted. ○ Cross-site request: coming from other site’s pages. Not Trusted. ○ We cannot treat these two types of requests the same.
+	● Does the browser know the difference?
+		○ Of course. The browser knows from which page a request is generated.
+		○ Can browser help?
+	● How to help server?
+		○ Referrer header (browser’s help)
+		○ Same-site cookie (browser’s help)
+		○ Secret token (the server helps itself to defend against 
+
+Countermeasures: Referrer Header
+	● HTTP header field identifying the address of the web page from where the request is generated.
+	● A server can check whether the request is originated from its own pages or not.
+	● This field reveals part of browsing history causing privacy concern and hence, this field is mostly removed from the header.
+	● The server cannot use this unreliable source.
+
+Countermeasures: Same-Site Cookies
+	● A special type of cookie in browsers like Chrome and Opera, which provide a special attribute to cookies called SameSite.
+	● This attribute is set by the servers and it tells the browsers whether a cookie should be attached to a cross-site request or not.
+	● Cookies with this attribute are always sent along with same-site requests, but whether they are sent along with cross-site depends on the value of this attribute.
+	● Values
+		● Strict (Not sent along with cross-site requests)
+		● Lax (Sent with cross-site requests only for when a user is navigating to the origin site)
+	● If the user is on www.web.dev and requests an image from static.web.dev then that is a same-site request.
+	● However, how about github.io?
+		○ Considered as separate sites
+		○ abc.github.io and requests an image from 1234.github.com ==> crosssite request
+	● How can we know that?
+		○ https://publicsuffix.org/list/
+
+Common warnings
+	● `SameSite=None` requires `Secure`
+		○ A `Secure` cookie is only sent to the server with an encrypted request over the HTTPS protocol.
+	● Cookies without `SameSite` default to `SameSite=Lax`
+
+Countermeasures: Secret Token
+	● The server embeds a random secret value inside each web page.
+	● When a request is initiated from this page, the secret value is included with the request.
+	● The server embeds a random secret value inside each web page.
+	● When a request is initiated from this page, the secret value is included with the request.
+	● The server checks this value to see whether a request is cross-site or not.
+	● Pages from a different origin will not be able to access the secret value. This is guaranteed by browsers (the same origin policy)
+	● The secret is randomly generated and is different for different users. So, there is no way for attackers to guess or find out this secret.
+
+The Cross-Site Scripting Attack
+	● In XSS, an attacker injects his/her malicious code to the victim’s browser via the target website.
+	● When code comes from a website, it is considered as trusted with respect to the website, so it can access and change the content on the
+	pages, read cookies belonging to the website and sending out
+	● Basically, code can do whatever the user can do requests on behalf of the user.
+	inside the session.
+
+Types of XSS Attacks
+	● Non-persistent (Reflected) XSS Attack
+	● Persistent (Stored) XSS Attack
+
+Non-persistent (Reflected) XSS Attack
+	- If a website with a reflective behavior takes user inputs, then :
+	● Attackers can put JavaScript code in the input, so when the input is reflected back, the JavaScript code will be injected into the web page from the website.
+	● Assume a vulnerable service on website : http://www.example.com/search?input=word, where word is provided by the users.
+	● Now the attacker sends the following URL to the victim and tricks him to click the link: http://www.example.com/search?input=<script>alert(“attack”);</script>
+	● Once the victim clicks on this link, an HTTP GET request will be sent to the www.example.com web server, which returns a page containing the search result, with the original input in
+	the page. The input here is a JavaScript code which runs and gives a pop-up message on the victim’s browser.
+
+Persistent (Stored) XSS Attack
+	● Attackers directly send their data to a target website/server which stores the data in a persistent storage.
+	● If the website later sends the stored data to other users, it creates a channel between the users and the attackers.
+		Example : User profile in a social network is a channel as it is set by one user and viewed by another.
+	● These channels are supposed to be data channels.
+	● But data provided by users can contain HTML markups and JavaScript code.
+	● If the input is not sanitized properly by the website, it is sent to other users’ browsers through the channel and gets executed by the browsers.
+	● Browsers consider it like any other code coming from the website. Therefore, the code is given the same privileges as that from the website.
+
+Samy worm
+	● Anyone who viewed my profile who wasn't already on my friends list would inadvertently add me as a friend. Without their permission
+	● I can propagate the program to their profile, can't I. If someone views my profile and gets this program added to their profile, that means anyone who views THEIR profile also adds me as a
+	friend and hero, and then anyone who hits THOSE people's profiles add me as a friend and hero...
+	● Within 20 hours, 1m+ users infected
+
+Damage Caused by XSS
+	- Web defacing: JavaScript code can use DOM APIs to access the DOM nodes inside the hosting page. Therefore, the injected JavaScript code can make arbitrary changes to the page. Example: JavaScript
+	code can change a news article page to something fake or change some pictures on the page.
+	- Spoofing requests: The injected JavaScript code can send HTTP requests to the server on behalf of the user.
+	- Stealing information: The injected JavaScript code can also steal victim’s private data including the session cookies, personal data displayed on the web page, data stored locally by the web application.
+
+Countermeasures: the Filter Approach
+	● Removes code from user inputs.
+	● It is difficult to implement as there are many ways to embed code other than <script> tag.
+	● Use of open-source libraries that can filter out JavaScript code.
+	● Example : jsoup
+
+Countermeasures: The Encoding Approach
+	● Replaces HTML markups with alternate representations.
+	● If data containing JavaScript code is encoded before being sent to the browsers, the embedded JavaScript code will be displayed by browsers, not executed by them.
+	● Converts <script> alert(‘XSS’) </script> to &lt;script&gt;alert(‘XSS’)
+
+Defeating XSS using Content Security Policy
+	● Fundamental Problem: mixing data and code (code is inlined)
+	● Solution: Force data and code to be separated: (1) Don’t allow the inline approach. (2) Only allow the link approach. 
+
+CSP Example
+	● Policy based on the origin of the code
+		- Code from self, example.com, and google will be allowed.
+		CSP: Content-Security-Policy: script-src 'self' example.com https://apis.google.com
+
+How to Securely Allow Inlined Code
+	● Using nonce
+	CSP: Content-Security-Policy: script-src 'nonce-34fo3er92d'
+		<script nonce=34fo3er92d></script> - allowed
+		<script nonce=3efsdfsdff></script> - not allowed
+
+Examples
+	● Content-Security-Policy: default-src 'self’
+	● Are the followings allowed?
+		○ <script src='/hello.js></script>
+			■ -> yes
+		○ <script src='https://other.com/script.js'></script>
+			■ -> no
+		○ <script>alert('hello')</script>
+			■ à no (inline scripts are prevented)
+
+Twitter hacking
+	• The scammers received over 400 payments in bitcoin
+		• How much did they receive in US dollar?
+			• 12.86 BTC à $798,897
+			• Half of those payments were made from U.S.-based cryptocurrency exchanges
+		• What’s the largest transaction?
+			• $42,000, from Japanese cryptocurrency exchange.
+	
+	• Why did victims send the bitcoin (i.e., money) to them?
+	• How can the scammer conduct this attack? 
+
+How can they conduct this attack?
+	• Social engineering attack
+	• Targeted some Twitter employees with access to internal systems and tools.
+	• Convinced a Twitter employee that he worked in the Twitter IT department and tricked that employee into giving him the credentials.
+	• A few employees were targeted in a phone spear phishing attack
+	• This attack relied on a significant and concerted attempt to mislead certain employees and exploit human vulnerabilities to gain access to our internal systems
+
+Colonial Pipeline ransomware attack
+	• Hackers gained entry into the networks of Colonial Pipeline Co. on April 29 through a virtual private network account, 
+	which allowed employees to remotely access the company’s computer network.
+	• The account’s password has since been discovered inside a batch of leaked passwords on the dark web
+	• That means a Colonial employee may have used the same password on another account that was previously hacked
+	• A little more than one week later, on May 7, an employee in Colonial’s control room saw a ransom note demanding cryptocurrency appear on a computer just before 5 a.m.
+	• By 6:10 a.m., the entire pipeline had been shut down
+
+Exam Recap
+	• Basic security concept
+		• Security mindset
+	• Software security
+		• Buffer overflow, other s/w attacks, mitigations, etc.
+	• Operating system security
+		• Permissions, Set-UID, race conditions, etc.
+	• Networks 101 & Network security
+		• 3 layers (application, transport, and network)
+		• PKI, TLS, DNS, etc.
+	• Web Security
+		• SQL Injection, CSRF, XSS, Countermeasures
+	• Cryptography
+		• Symmetric vs. Asymmetric
+
+Attacks & Countermeasures
+	• What kinds of vulnerabilities each system has?
+	• Why are they vulnerable?
+	• How can they be exploited?
+	• What kinds of countermeasures against the attacks?
+	• Why are they not perfect solutions?

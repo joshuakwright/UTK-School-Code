@@ -1,0 +1,2177 @@
+---------- Basic Security Concept ----------
+
+What is computer security?
+	• Normally, we are concerned with functionality and correctness.
+	• Security is also a form of correctness.
+
+What is computer security?
+	- The key difference:
+		• Security involves an adversary who is active and malicious.
+		• Attackers seek to circumvent protective measures.
+
+What’s the diff between you and attackers?
+	• Attackers are not normal users
+	• Normal users: try to avoid bugs/flaws
+	• Attackers: try to find the bugs/flaws out and to exploit them
+
+What does it mean to be secure?
+	• There is no such thing as security, only degrees of insecurity.
+	• Goal: just raise the bar for the attacker
+		• Too difficult
+		• Too expensive
+	• Ultimately, we want to mitigate undesired behavior
+
+What are “undesired” behaviors?
+	• Reveals information users want to hide: Confidentiality
+
+Confidentiality
+	• Only authorized parties should learn certain information.
+	• Examples:
+		• The contents of a file on a disk, a value in a database, etc.
+		• Information traveling between two parties over a network
+		• The fact that two parties are communicating
+	• Need to think carefully and clearly define
+		• What data is protected
+			• Just because some data is confidential in a system, it does not mean all data needs to be confidential
+	• Who is authorized
+	• Need to think about side channels - ways to learn about data without directly learning the value
+
+Side channel attack
+	• Power analysis
+	• When computing (encrypting/decrypting), guess what original values are.
+
+What are ”undesired” behaviors?
+	• Reveals information users want to hide: Confidentiality
+	• Modified information or functionality: integrity
+
+Integrity
+	● Everything is as it should be.
+	● Examples:
+		○ Data integrity - Only an allowed party can write to a particular resource
+		○ Authentication integrity - An entity should be who they claim to be
+		○ Computational integrity - A function should correctly compute a result
+		○ Business logic integrity - A computation should result in the intended behavior
+		○ Control flow integrity - A function should do the task it was written for
+
+What are ”undesired” behaviors?
+	• Reveals information users want to hide: Confidentiality
+	• Modified information or functionality: integrity
+	• Denies access to a service: availability
+
+Availability
+	● Authorized “users” should be able to interact with resources when they wish to in the expected amount of time.
+	● Examples:
+		○ Crashing a website for political reasons
+		○ Denial of service attack
+
+Why do attackers do this?
+	• A lot of reasons…
+		○ To make money
+		○ To cost you money
+		○ To make money by costing you money
+		○ Because they are a terrorist
+		○ Because they are a freedom fighter
+		○ Because they are a government, and you are a different one
+		○ Because they are at war with you
+		○ Because it is cool
+		○ Because they are mad
+		○ Because they can
+
+Building an attack
+	• Adversaries (generally) approach this process by keeping in mind
+	• Their end goal
+	• What unfounded assumptions/mistakes/bugs they have found
+	• Each assumption by itself might not directly lead to undermining a security property
+	• But one bug might lead to the ability to create another….
+	• The challenge for an attacker is to find these little flaws, and chain them together into something bigger….
+
+Using a Few Assumptions Put Together...
+	● A protocol exists call ICMP echo
+		○ Send a hello message with a number
+		○ Receiving party sends back a hello message with number + 1
+	● There is no integrity on the “from” IP address in a network packet
+	● Networks have a broadcast address
+		○ Send a message to that address, it gets broadcast to every device on the network
+
+Heartbleed
+	• TLS is the de facto protocol for secure online communication
+	• Heartbleed was a vulnerability in the most popular TLS server
+	• A malformed packet allows you to see server memory
+	• Fix: don’t let the user just tell you how much data to give back
+	• This was a design flaw
+
+---------- Think Like a Defender ----------
+
+Thinking like a Defender
+	• If you only remember these things, you’ll be okay (mostly):
+	• Assume the adversary knows everything à don’t try to hide!
+	• You can plan for attacks à build in security controls
+	• Security is not free, but it is essential à you must weigh the cost to an organization with the benefit of added engineering efforts
+
+Dolphin Attack
+	• Inaudible ultrasound commands can be used to secretly control Siri, Alexa, and Google Now
+
+Security mindset
+	• To anticipate attackers, we must be able to think like attackers
+	• The ability to view a large, complex system and be able to reason about:
+	• What are the potential security threats?
+	• What are the hidden assumptions?
+	• Aare the explicit assumptions true?
+	• How can we mitigate the risks of the system?
+
+E-voting analysis
+	• Summarize the system as clearly and concisely as possible:
+		1. Pre-election phase
+			- Poll worker loads a “ballot definition file” (defines who’s running, colors on the screen, and many more things) on the voting machines with, e.g., USB
+		2. Voting phase
+			(a) Voter obtains a single-use token from poll workers (on smartcard)
+			(b) Voter uses the token to interactively vote
+			(c) Vote stored encrypted on disk
+			(d) Voter token canceled
+		3. Post-election phase
+			- Stored votes decrypted and transported to tabulator
+			- Tabulator counts and announces vote
+	• Identify the assets / goals of the system
+		• Confidentiality
+			• No one knows for whom any given voter voted (except for the voter)
+		• Integrity
+			• Every voter’s vote counted once
+			• No voter’s vote changed
+		• Availability
+			• Everyone has the ability to cast their vote
+		• Usability
+			• Easy for the voter to vote (correct language, good UI)
+			• Easy for the tabulator to count votes
+	• Identify the vulnerabilities
+		- Ballot definition files are not authenticated
+			- How do we know they’re from the election board?
+			- Can redefine “Candidate A” as “Candidate B”
+			- Viruses
+		- Smartcards are not authenticated
+			- How do we know they’re not user-generated?
+			- Possible to make your own and vote multiple times.
+		- Specific software vulnerabilities
+			- Every machine has the same encryption key!
+			- Break one, and they all fall
+		- Votes are shipped unencrypted!
+		- Votes are stored in the order cast
+			- If one can view the data unencrypted, this violates our confidentiality goal
+
+Threat Modeling/Security Planning
+	• Documentation and planning are an important aspect designing secure programs/systems
+	• Plans are broken down into security goals, controls, and mechanism
+		○ Security goal should be self explanatory at this point….
+		○ A control is high level way you are going to guarantee the security property
+		○ A mechanism is how the control is implemented
+	• Example:
+		○ Goal - Integrity of user authentication
+		○ Control - Limiting of unsuccessful login attempts - The system both limits a user to 5 consecutive invalid logon attempts by a user during a 5 minute
+		period and automatically locks the account for 5 minutes when the limit is exceeded
+		○ Mechanism - The system uses the Fail2Ban utility
+
+Fundamental Dilemma of Computer Security
+	• Security-unaware users have specific security requirements but usually no security expertise.
+	• Usability vs. Security
+
+We need standards!
+	• The fundamental dilemma means a few things….
+	• Users might be bad enumerating their goals
+	• Designing a control that works against an appropriate adversary
+	• Figuring out how to correctly implement a mechanism
+	• As a result standards exist that provide “cookbooks” for a variety of scenarios
+	• Generally if your boss demands you do X, it is because a standard told them so….
+	• Actually provides a good starting point….
+	• Does not mean you can do more than the standard!
+
+Government Standards
+	• NIST FIPS - Federal Information Processing Standards
+	• NIST SP - Special Publications
+	• NERC CIP – Critical Infrastructure Protection (SCADA)
+	• PCI DSS – Payment Card Industry Data Security Standard
+	• Example
+		• Security requirements for cryptographic modules (140-2)
+		• Recommended Security Controls for Federal Information Systems (800-53)
+		• Mobile Device Security: Corporate-Owned Personally-Enabled (1800-21)
+		• Access Rights Management for the Financial Services Sector (1800-9)
+		• Zero Trust Architecture (800-207)
+		• And many many more….
+
+Cost and Risk Analysis
+	• Not all solutions to the same problem are the same
+		• Some work better than others
+		• Some cost more than others
+	• How do we choose?
+	• Qualitative
+		• “Rate” how costly attacks are and how well solutions mitigate attacks
+		• Easier to do, but can lead to bad results
+	• Quantitative (enter the Accountants)
+		• Harder to accomplish (have to define a lot of things that are challenging to define)
+		• Leads to results that are more useful from a biz perspective
+
+Annual Loss Expectancy
+	• How much does a vulnerability cost us?
+	• Actuary sciences give us a way to quantify this
+	• Annual Rate of Occurrence * Single Loss Expectancy = ALE
+	Example:
+		- Vulnerability A happens twice a year, and costs $1k per incident
+			2 * $1,000 = $2,000 ALE
+		- Vulnerability B happens once every ten years, costs $10k per incident
+			0.1 * $10,000 = $1,000 ALE
+
+Adjusted ALE
+	• Security mechanisms will do one or both of….
+		• Reduce the ARO (stop attacks from happening)
+			• Annualized rate of occurrence
+		• Reduce the SLE (mitigate the effects of the attack)
+			• single loss expectancy
+	• Security comes at a cost
+		• Performance
+		• Dollars
+	• We can compare the efficiency of different security solutions
+		• Calculate the ALE before the solution
+		• Calculate the ALE after (Adjusted ALE, or AALE)
+		• Net benefit of system is ALE - AALE - annual cost of system
+
+An Example: DDoS
+	- A DDoS incident costs $10k per incident, we expect 2 attacks per year.
+		ALE = $10,000 * 2 = $20,000
+	- Defense X costs $1k / year, does not change the number of attacks per year, but reduces the cost of each incident to $5k.
+	- Defense Y costs $19k / year, does not change the cost of an incident, but reduces the likelihood of an attack to once every 10 years.
+	- Which is better?
+		- Defense X:
+			AALE = $5,000 * 2 = $10,000
+			$20,000 - $10,000 - $1,000 = $9,000 benefit (ALE - AALE - Cost)
+		- Defense Y:
+			$10,000 * 0.1 = $1000
+			$20,000 - $1,000 - $19,000 = $0 benefit
+
+Marketplace for Vulnerabilities
+	• Option 1: bug bounty programs
+		• Google Vulnerability Reward Program: up to $31,337
+		• Microsoft Bounty Program: up to $100K
+		• Apple Bug Bounty Program: up to $200K
+		• Pwn2Own (hacking contest) competition: $15K
+	• Option 2:
+		• Zerodium: Acquiring zero-day exploits -> selling it back to customers which most likely include government agencies and other private organizations.
+			• up to $2M for iOS, $2.5M for Android
+	• Option 3:
+		• Black market: don’t try this
+
+Fuzzing
+	• Automated software testing technique that involves providing invalid, unexpected, or random data as inputs to a computer program.
+
+Pros and cons of fuzzing
+	• Pros
+		• Provides results with little effort: automatically fuzzer is up and running with no interaction
+		• can reveal bugs missed in a manual audit
+	• Cons
+		• Unable to find all bugs: miss bugs that don’t trigger a full program crash
+		• Unable to know how the software operates internally
+		• Requires a lot of power consumption (similar to mining)
+
+Types of Fuzzing
+	• Mutation-based (Dumb) fuzzing
+		• Add anomalies to existing good inputs (e.g., test suite)
+		• e.g., Large integers or strings, Randomly flip bits
+	• Generative (Smart) fuzzing
+		• Generate inputs from specification of format, protocol, etc
+		• Test cases are generated from protocol description
+	• Evolutionary (Responsive) fuzzing
+		• Leverage program instrumentation, code analysis
+		• Use response of program to build input set
+
+Charlie Miller’s 5 Lines
+	• Randomly changed selected bytes to random values in files
+	• Produce ~3 million test cases from 1,500 files
+	• Use standard common tools to determine if crash represents an exploit
+		• Acrobat: 100 unique crashes, 4 actual exploits
+		• Preview: 250 unique crashes, 60 exploits (tools may over-estimate)
+
+---------- Software Security: Memory layout ----------
+
+What’s function?
+	• Assigns to each element of X exactly one element of Y
+	• A group of statements that together perform a task.
+	• Every C program has at least one function, which is main(), and all the most trivial programs can define additional functions.
+
+All programs are stored in memory
+	- The process’s view of memory is that it owns all of it
+
+Wait!
+	• How would it be possible for two programs to run at the same time on your Windows or MacOS?
+	• May conflict your program with other programs
+	• You have a limited memory like 4GB, your program needs more memory space than 4GB.
+	• How can we overcome this challenge?
+
+Virtual Memory
+	• Freeing applications from having to manage a shared memory space. You don’t worry about managing memory when
+	programming. -> Process isolation, Simplifying application writing, Simplifying compilation, linking, loading
+	• Able to conceptually use more memory than might be physically available
+
+********** Look at slide 22 for how memory works with the stack **********
+	* Also how base pointer works
+	* Also how returning from function works
+
+Stack layout when calling function
+	- Arguments pushed in reverse order of code
+	- Local variables pushed in the same order as they appear in the code
+
+EBP (Base Pointer): Notation
+	• %ebp: A memory address
+	• (%ebp): The value at memory address %ebp (like dereferencing a pointer)
+
+Stack & functions: Summary
+	- Calling function (before calling):
+		1. Push arguments onto the stack (in reverse)
+		2. Push the return address, i.e., the address of the instruction you want run after control returns to you: e.g., %eip + 2
+		3. Jump to the function’s address
+	- Called function (when called):
+		1. Push the old frame pointer onto the stack: push %ebp
+		2. Set frame pointer %ebp to where the end of the stack is right now: %ebp=%esp
+		3. Push local variables onto the stack; access them as offsets from %ebp
+	- Called function (when returning)
+		1. Reset the previous stack frame: %esp = $ebp; pop %ebp
+		2. Jump back to return address: pop %eip
+
+Example of stack based buffer overflow on slide 32
+
+---------- Buffer Overflow ----------
+
+Buffer overflows: high level
+	• Buffer
+		• Contiguous set of a given data type
+		• Common in C
+			• All strings are buffers of char’s
+	• Overflow
+		• Put more into the buffer than it can hold
+	• Where does the extra data go?
+		• Let’s figure it out.
+
+Common functions that cause overflow
+	• Recall: In C, string are character arrays terminated with a null character
+	• ‘\0’ which is represented by a byte of all zeroes
+	- strcpy easy to overflow, doesn't check length
+
+What’s the common things?
+	• Functions does not check the length.
+
+Some Unsafe C Lib Functions
+	strcpy (char *dest, const char *src)
+	strcat (char *dest, const char *src)
+	gets (char *s)
+	scanf ( const char *format, … )
+	sprintf (conts char *format, … )
+
+What’s the common things?
+	• Functions does not check the length.
+	• User-supplied strings can result in serious problems
+
+User-supplied strings
+	• In these examples, we were providing our own strings
+	• But they come from users in myriad ways
+		• Text input
+		• Network packets
+		• Environment variables
+		• File input
+
+What Can An Adversary Do With This?
+	● Two general forms of attack
+	● Option 1) Change the value of local variables outside of normal control flow
+		○ For example an account number stored on the stack
+		○ Or an integer storing say the current EUID stored on the stack…
+		○ Can change values of variables in higher (calling) stack frames as well
+			■ A little more complicated, but certainly not impossible
+	● Option 2) Alter what the return address points to
+		○ Pointing it to code we want to run
+		○ Where could we place such code???
+
+Consequences of Buffer Overflow
+	• Overwriting return address with some random address can point to :
+		• Invalid instruction
+		• Non-existing address
+		• Access violation
+		• Attacker’s code -> Malicious code to gain access
+
+Shellcode
+	● Generic name used for “adversarial machine instructions”
+	● Most common form was code that ran exec(“/bin/sh”);
+	● Opening step in building is to write a short program that does what you want
+	● Dump the machine code
+	● Need to adjust so there are no null bytes in it
+	● In practice there are repositories of this stuff on the Internet
+		○ Alphanumeric shellcode exists
+		○ “English” shellcode exists
+
+Creation of The Malicious Input
+	Task A : Find the offset distance between the base of the buffer and return address.
+	Task B : Find the address to place the shellcode
+
+Challenge
+	• We don’t know where the shell code is?
+	• Solution?
+		• NOP (0x90)
+
+NOP Slides (0x90)
+	● Sometimes it is hard to know exactly where a buffer will be
+	● Every instruction in your shellcode needs to execute
+	● NOPs have zero impact on execution
+	● Running a whole bunch of NOPs and then your shellcode is the same as just running your shellcode
+	● Placing a whole bunch of NOPs before your shellcode makes your life easier
+	● The ret addr just needs to point to any of the NOPs
+
+Task B : Address of Malicious Code
+	• To increase the chances of jumping to the correct address, of the malicious code, we can fill the buf with NOP instructions and
+	place the malicious code at the end of the buffer.
+	Note : NOP- Instruction that does nothing.
+
+---------- Countermeasuers ---------
+
+Countermeasures
+	- Developer approaches:
+		• Use of safer functions like strncpy(), strncat() etc, safer dynamic link libraries that check the length of the data before copying.
+	- OS approaches:
+		• ASLR (Address Space Layout Randomization)
+	- Compiler approaches:
+		• Stack-Guard
+	- Hardware approaches:
+		• Non-Executable Stack
+
+Developer approaches
+	• Use of safer functions like strncpy(), strncat() etc, safer dynamic link libraries that check the length of the data before copying.
+
+Strncpy()
+	• Description
+		• The strcpy() function copies the string pointed to by src, including the terminating null byte ('\0'), to the buffer pointed to by dest. The
+		strings may not overlap, and the destination string dest must be large enough to receive the copy. Beware of buffer overruns! (See BUGS.)
+		• The strncpy() function is similar, except that at most n bytes of src are copied.
+
+Security problems of strncpy
+	• C strings are supposed to end in a \0 !
+	• but it does not guarantee that the resulting string will be nullterminated.
+	• Buffer overread.
+	• Strlcpy() is a safer alternative.
+		• ensures that the resulting string is always null-terminated
+
+Wait! What’s another problem?
+	• Strlcpy() looks safe (as the prof. said that)
+	• What might be the potential security problem here? 
+
+length specified by programmers
+	• What if I have changed the length of name to 4?
+	• This would result in an overflow into name.
+	• Why?
+		• in C, an array is simply a contiguous region of memory
+		• In C, the programmer is the one responsible for keeping track of how large an array is, and for providing the size to functions.
+
+What’s the solution?
+	• May wonder? Sizeof()
+	• sizeof is telling you how large x is, and x is a pointer to a buffer.
+	• How about strlen()?
+		• strlen merely tries to count the number of bytes until it reaches a zero-byte
+		• What’s the problem?
+		• Not useful with non-ASCII data (raw binary data)
+
+Principle of ASLR
+	- To randomize the start location of the stack that is every time the code is loaded in the memory, the stack address changes.
+	- Difficult to guess the stack address in the memory.
+	- Difficult to guess %ebp address and address of the malicious code
+
+ASLR : Defeat It
+	3. Defeat it by running the vulnerable code in an infinite loop.
+		- On running the script for about 19 minutes on a 32-bit Linux machine, we got the access to the shell (malicious code got executed).
+
+Stack guard
+	• Another buffer overflow attack pattern?
+
+Stack Canaries
+	● Insert a random value between the data portions of the stack and the sfp (prev. $ebp) and ret addr.
+	● Before returning ensure that the value is preserved
+	● If not, kill process
+	● Issues:
+		○ Does not protect other variables on the stack
+		○ Are other ways to corrupt exact locations on the stack
+			■ Example: format string vulnerabilities
+
+Non-executable stack
+	• NX bit, standing for No-eXecute feature in CPU separates code from data which marks certain areas of the memory as non-executable.
+	• This countermeasure can be defeated using a different technique called Return-to-libc attack (there is a separate chapter on this attack)
+
+---------- Other Software Vulnerabilities -----------
+
+- Return-to-libc Attacks
+
+Non-executable Stack (Demo)
+	• Stack is no longer executable…
+	• What can the attacker do?
+	• What if they use system(“/bin/sh”)?
+		• As long as we can call this system function, it would be simple
+
+Steps: system(“/bin/sh”)
+	• Find the address of system()
+		• To overwrite return address with system()’s address.
+	• Find the address of the “/bin/sh” string
+		• To run command “/bin/sh” from system()
+	• Construct arguments for system()
+		• To find location in the stack to place “/bin/sh” address (argument for system())
+
+Task A : To Find system()’s Address.
+	● In Linux, when a program runs, the libc library will be loaded into memory.
+	● Debug the vulnerable program using gdb
+	● Using p (print) command, print address of system() and exit().
+
+Task B : To Find “/bin/sh” String Address
+	● Using buffer overflow à “/bin/sh” is overwritten in memory
+	● Can you recall how the stack layout looks like?
+	- Look at slide 39 for example of this
+
+- Format String Vulnerabilities
+
+Format String
+	- printf() - To print out a string according to a format.
+		int printf(const char *format, …);
+	- The argument list of printf() consists of :
+		● One concrete argument format
+		● Zero or more optional arguments
+	- Hence, compilers don’t complain if less arguments are passed to printf() during invocation.
+
+How printf() Works
+	● Here, printf() has three optional arguments. Elements starting with “%” are called format specifiers.
+	● printf() scans the format string and prints out each character until “%” is encountered.
+	● printf() calls va_arg(), which returns the optional argument pointed by va_list and advances it to the next argument. 
+
+How printf() Works
+	● When printf() is invoked, the arguments are pushed onto the stack in reverse order.
+	● When it scans and prints the format string, printf() replaces %d with the value from the first optional argument and prints out the value.
+	● va_list is then moved to the position 2.
+
+Missing Optional Arguments
+	● va_arg() macro doesn’t understand if it reached the end of the optional argument list.
+	● It continues fetching data from the stack and advancing va_list pointer.
+
+Vulnerable Program’s Stack
+	- Inside printf(), the starting point of the optional arguments (va_list pointer) is the position right above the format string argument.
+
+What Can We Achieve?
+	Attack 1 : Crash program
+	Attack 2 : Print out data on the stack
+	Attack 3 : Change the program’s data in the memory
+	Attack 4 : Change the program’s data to specific value
+	Attack 5 : Inject Malicious Code
+
+Attack 1 : Crash Program
+	● Use input: %s%s%s%s%s%s%s%s
+	● printf() parses the format string.
+	● For each %s, it fetches a value where va_list points to and advances va_list to the next position.
+	● As we give %s, printf() treats the value as address and fetches data from that address. If the value is not a valid address, the program crashes.
+
+Attack 2 : Print Out Data on the Stack
+	● Suppose a variable on the stack contains a secret (constant) and we need to print it out.
+	● Use user input: %x%x%x%x%x%x%x%x
+	● printf() prints out the integer value pointed by va_list pointer and advances it by 4 bytes. 
+	● Number of %x is decided by the distance between the starting point of the va_list pointer and the variable. It can be achieved by trial and error.
+
+Attack 3 : Change Program’s Data in the Memory
+	Goal: change the value of var variable from 0x11223344 to some other value.
+		● %n: Writes the number of characters printed out so far into memory.
+		● printf(“hello%n”,&i) ⇒ When printf() gets to %n, it has already printed 5 characters, so it stores 5 to the provided memory address.
+		● %n treats the value pointed by the va_list pointer as a memory address and writes into that location.
+		● Hence, if we want to write a value to a memory location, we need to have it’s address on the stack.
+
+Integer Overflows
+	● Casting down in width is dangerous
+		○ Is saving those bits really needed?
+	● Sanity check the results of computations
+		○ Especially if the inputs come from a user
+		○ Especially if you are about to do something critical with the result
+	● Mixing signed and unsigned is also dangerous
+	● Where needed use safe functions if they exist in your language
+		○ Example: Math.addExact in java
+	● Fun fact: Python does not really have these issues
+
+---------- Operating System Security ----------
+
+- What's an operating system
+
+Operating System
+	• Layer of software to provide access to HW
+	• Provides:
+		• Abstraction of complex hardware
+			• Programs do not need to know exact hardware and how they operate.
+		• Protected Access to shared resources
+	• Communication
+	• Security
+
+What is an Operating System?
+	• Software providing a more convenient/featureful machine interface
+		• Resource sharing, protection, isolation
+			• CPU/Memory
+		• Clean/easy abstractions
+			• File reads and writes vs. Accessing sectors of disk
+		• Provide common services
+			• Storage, window systems, authorization, networking, … 
+
+The Security Job of An Operating System
+	• Controls access to resources
+	• Ensure the integrity of resources
+	• The security of the O/S generally underpins the security of software running on the O/S
+
+Resources the O/S Manages
+	• Hardware
+		• Memory, Storage, CPU/Processes, Network Access
+	• Allows three general behaviors
+		• Reading
+		• Writing
+		• Execution
+
+- Protected Storage
+
+File permissions
+	● Files in modern OSes have a set of permission bits
+	● Control a user’s ability to read, write, and execute a file
+		● We call each of these behaviors a capability
+	● How you resolve what a user has permission to do depends on the Operating System
+	● User based access controls
+		● Capabilities are bound to a particular user
+	● Role based access controls
+		● Capabilities are bound to a collection of a users that have particular needs based on their expected task
+
+Linux permissions
+	• Can be viewed with “ls -l”
+	• Can be changed with “chmod”
+	• Permission mask represented by an integer
+	• Can be set for three different subjects
+		• File user owner
+		• File group owner
+		• Everyone else
+	• Your permission level is determined by checking in that order
+	• First one that matches your user is the one applied
+
+Permission Bits – Example (Directories)
+	• r - ability to read the contents of the directory (e.g., ls)
+	• w - ability to write into the directory (e.g., create/rename/delete files and directories within in the directory)
+	• x - ability to enter that directory (e.g., cd)
+
+Permissions Example
+	• foo.bar: owned by bob:gradstudents
+		• with permission 754
+	• hello.world: owned by alice:gradstudents
+		• with permission 705
+	• Users:
+		• alice:gradstudents
+		• bob:gradstudents
+		• charlie:gradstudents
+		• dave:undergradstudents
+
+- User ID & EUID
+
+User ID
+	• A number assigned by Linux to each user on the system
+		• Used to identify the user to the system and to determine which system resources the user can access
+	• Special User: root
+		• The “root” user on a Linux box has access to everything
+		• Windows has similar concepts with Admin and System accounts
+		• User ID (UID): 0
+
+Where are UIDs are stored?
+	• Stored in /etc/passwd
+		• Traditionally Unix systems keep user account information (one-way hashed passwords in the file
+		• Now, the passwords are stored in /etc/shadow and is readable only by root
+			• Of course, the passwords are encrypted
+
+- Set-UID
+
+Need for Privileged Programs
+	• Password Dilemma
+		• Permissions of /etc/shadow File:
+		• How would normal users change their password?
+
+Set-UID Programs
+	• Widely used in UNIX systems
+	• Program marked with a special bit
+
+Set-UID Concept
+	• Allow user to run a program with the program owner’s privilege.
+	• Allow users to run programs with temporary elevated privileges
+	• Example: the passwd program
+	• Every process has two User IDs.
+	• Real UID (RUID): Identifies real owner of process
+	• Effective UID (EUID): Identifies privilege of a process
+		• Access control is based on EUID
+	• When a normal program is executed, RUID = EUID, they both equal to the ID of the user who runs the program
+	• When a Set-UID is executed, RUID ≠ EUID. RUID still equal to the user’s ID, but EUID equals to the program owner’s ID.
+	• If the program is owned by root, the program runs with the root privilege.
+
+How it Works
+	• A Set-UID program is just like any other program, except that it has a special marking, which a single bit called Set-UID bit
+	- see slide 33 for example of use
+
+How is Set-UID Secure?
+	• Allows normal users to escalate privileges
+		• This is different from directly giving the privilege (sudo command)
+		• Restricted behavior
+	• Unsafe to turn all programs into Set-UID
+		• Example: /bin/sh
+		• Example: vi
+
+SUDO vs. Set UID
+	• Ask for your password and compare it to /etc/shadow
+	• Check to see if your username or group is in /etc/sudoers file
+	• exec the command you want to run as root
+
+--- Next presentation, same concept ---
+
+Attacks via User Inputs
+	• User Inputs: Explicit Inputs
+		• Buffer Overflow: Overflowing a buffer to run malicious code
+		• Format String Vulnerability: Changing program behavior using user inputs as format strings
+
+Attacks via User Inputs: Examples
+	• CHSH – Change Shell
+		• Set-UID program with ability to change default shell programs
+		• Shell programs are stored in /etc/passwd file
+	• Attackers could create a new root account
+		• chsh –s /bin/zsh\n root:$6$xxxxxxxx:0:0:…
+
+Attacks via System Inputs: Examples
+	• Race Condition
+		• Symbolic link to privileged file from an unprivileged file
+		• Influence programs
+		• Writing inside world writable folder
+
+Race Condition
+	● Happens when:
+		○ Multiple processes access and manipulate the same data concurrently.
+		○ The outcome of execution depends on a particular order.
+	● If a privileged program has a race condition, the attackers may be able to affect the output of the privileged program by putting influences on the uncontrollable events.
+	- For example, see slide 8 (File access check then open)
+
+Race Condition Vulnerability
+	- Goal : To write to a protected file like /etc/passwd.
+	- To achieve this goal we need to make /etc/passwd as our target file without changing the file name in the program.
+		● Symbolic link (soft link) helps us to achieve it.
+		● It is a special kind of file that points to another file.
+	- Issues :
+		- As the program runs billions of instructions per second, the window between the time to check and time to
+		use lasts for a very short period of time, making it impossible to change to a symbolic link
+			● If the change is too early, access() will fail.
+			● If the change is little late, the program will finish using the file.
+	- To win the race condition (TOCTTOU window), we need two processes :
+		● Run vulnerable program in a loop
+		● Run the attack program
+
+Another Race Condition Example
+	Set-UID program that runs with root privilege.
+	1. Checks if the file “/tmp/X” exists.
+	2. If not, open() system call is invoked. If the file doesn’t exist, new file is created with the provided name.
+	3. There is a window between the check and use (opening the file).
+	4. If the file already exists, the open() system call will not fail. It will open the file for writing.
+	5. So, we can use this window between the check and use and point the file to an existing file “/etc/passwd” and eventually write into it.
+
+EAFP in Python
+	- Use try except statments, if open fails, just catch error
+
+Attacks via Environment Variables
+	• Behavior can be influenced by inputs that are not visible inside a program. 
+	• Environment Variables : These can be set by a user before running a program.
+	• PATH Environment Variable
+		• Used by shell programs to locate a command if the user does not provide the full path for the command
+		• system(): call /bin/sh first
+		• system(“ls”)
+			• /bin/sh uses the PATH environment variable to locate “ls”
+			• Attacker can manipulate the PATH variable and control how the “ls” command is found
+
+Capability Leaking
+	• In some cases, Privileged programs downgrade themselves during execution
+	• Example: The su program
+		• This is a privileged Set-UID program
+		• Allows one user to switch to another user (say user1 to user2 )
+		• Program starts with EUID as root and RUID as user1
+		• After password verification, both EUID and RUID become user2’s (via privilege downgrading)
+	• Such programs may lead to capability leaking
+		• Programs may not clean up privileged capabilities before downgrading
+	- See example on slide 23
+	- How to fix the program?
+		- Destroy the file descriptor before downgrading the privilege (close the file)
+	
+Invoking Programs
+	• Invoking external commands from inside a program
+	• External command is chosen by the Set-UID program
+		• Users are not supposed to provide the command (or it is not secure)
+	• Attack:
+		• Users are often asked to provide input data to the command.
+		• If the command is not invoked properly, user’s input data may be turned into command name. This is dangerous. 
+
+Invoking Programs : Unsafe Approach
+	• The easiest way to invoke an external command is the system() function.
+	• This program is supposed to run the /bin/cat program.
+	• It is a root-owned Set- UID program, so the program can view all files, but it can’t write to any file.
+	- Question: Can you use this program to run other command, with the root privilege?
+
+Invoking Programs Safely: using execve()
+	- Why is it safe?
+	- Code (command name) and data are clearly separated; there is no way for the user data to become code
+
+Additional Consideration
+	• Some functions in the exec() family behave similarly to execve(), but may not be safe
+	• execlp(), execvp() and execvpe() duplicate the actions of the shell. These functions can be attacked using the PATH Environment Variable
+
+Invoking External Commands in Other Languages
+	• Risk of invoking external commands is not limited to C programs
+	• We should avoid problems similar to those caused by the system() functions
+	• Examples:
+		• Perl: open() function can run commands, but it does so through a shell
+		• PHP: system() function
+		• Attack:
+			• http://localhost/list.php?dir=.;date
+			• Command executed on server : “/bin/ls .;date”
+
+Principle of Isolation
+	- Principle: Don’t mix code and data.
+	- Attacks due to violation of this principle :
+		• system() code execution
+		• Cross Site Scripting
+		• SQL injection
+		• Buffer Overflow attacks
+
+Principle of Least Privilege
+	• A privileged program should be given the power which is required to perform it’s tasks.
+	• Disable the privileges (temporarily or permanently) when a privileged program doesn’t need those.
+	• In Linux, seteuid() and setuid() can be used to disable/discard privileges.
+	• Different OSes have different ways to do that.
+
+---------- Crypto ----------
+
+Scenarios and goals
+	• Goal: Ensure security of communication over insecure medium
+	• What does secure communication mean?
+		• Confidentiality: Keep others from reading Alice’s messages/data
+		• Integrity: Keep others from undetectably tampering with Alice’s messages/data
+		• Authenticity: Keep others from undetectably impersonating Alice
+	• What does insecure medium mean?
+		• Two basic possibilities:
+			• Passive attacker: the adversary can eavesdrop
+			• Active attacker: the adversary has full control over the communication channel
+	• Can you recall “undesired” behaviors?
+		• Confidentiality
+		• Integrity
+		• Availability: cryptography cannot help in availability
+
+Need for Crypto
+	• If confidentiality, integrity, and accountability are goals you are interested in, the Internet is not your friend
+		• Link Layer address resolution is fairly easy to man in the middle
+		• IP is spoofable
+		• Man in the middle adversaries
+	• Fixing this option: A) Re-design the Internet
+		• Costly
+		• And even this is not going to solve many of these issues
+	• Build security into the higher layers
+		• What we actually did, e.g., TLS, HTTPS, etc.
+
+Cipher - Basics
+	• We can not avoid showing data to the adversary
+		• On the Internet, you can see the data packet.
+	• Our goal is that the data an adversary sees does not tell the adversary anything about the actual contents of the message
+	• Technically, the adversary gains no additional knowledge they did not already have
+	• The actually message we want to send is called the plaintext
+	• An encryption algorithm takes the plain text, a key, (and randomness) and generates a ciphertext
+		• The ciphertext is the data that actually gets written to the insecure infrastructure
+	• A decryption algorithm takes ciphertext and a key, returns plaintext
+
+Basic Terminology for Encryption
+	• Plaintext 	original message
+	• Ciphertext 	transformed message
+	• Key 		secret used in transformation
+	• Encryption
+	• Decryption
+	• Cipher 	algorithm for encryption/decryption
+
+Keys
+	• All encryption is based on secrets, called keys
+		• This is different than the algorithm itself being secret
+		• Keys are “short” term, “compact”, and disposable
+	• The key space is the number of possible values the key can be
+	• Keys spaces should be large enough to make brute force attacks infeasible
+		• Brute force attack = trying every single key possible
+
+Tag/Signature - Basics
+	• Can not stop the adversary from having the ability to edit our message
+	• We can stop the adversary from editing the message without us noticing
+	• Accomplished by adding additional data - called signature/tag
+		• Tag/Sig is logically bound to the message
+		• Tag/Sig is based on a key
+	• Verifying party checks that tag/sig matches the message/key pair
+	• Adversary can’t change message w/o detection since they can’t build the correct tag/signature
+
+Symmetric Key vs Asymmetric Key
+	• Symmetric Key systems: both parties have the same key (shared secret)
+		• What’s the problem?
+			• Requires you to share this secret
+		• Very fast systems
+	• Asymmetric Key systems: one person holds a private key, everyone else knows their public key
+		• Keys are mathematically linked
+		• Very slow systems
+
+Symmetric vs Asymmetric
+				Symmetric 			Asymmetric
+	Confidentiality 	Block & Stream Ciphers		Public Key Encryption					
+	Integrity Message 	Authentication Codes (MAC)	Digital Signatures
+
+Using Both Systems
+	• Symmetric systems require a shared key…
+	• Asymmetric systems are slow….
+	• Solution:
+		• Use the Asymmetric systems to share a temporary key
+		• Swap over to using symmetric systems
+
+--- Symmetric Ciphers ---
+
+Introduction
+	• Encryption is the process of encoding a message in such a way that only authorized parties can read the content of the original message
+	• History of encryption dates back to 1900 BC
+
+Shift Cipher
+	• The Key Space:
+		• [0 .. 25]
+	• Encryption given a key K:
+		• each letter in the plaintext P is replaced with the K’th letter following corresponding number (shift right)
+	• Decryption given K:
+		• shift left
+	- History: K = 3, Caesar’s cipher
+
+Mono-alphabetic Substitution Cipher
+	• The key space: all permutations of S = {A, B, C, …, Z}
+	• Encryption given a key p:
+		• each letter X in the plaintext P is replaced with p(X)
+	• Decryption given a key p:
+		• each letter Y in the cipherext P is replaced with p^-1(Y)
+
+Breaking Monoalphabetic Substitution Cipher
+	• What’s the problem? How to break it?
+	• Frequency analysis is the study of the frequency of letters or groups of letters in a ciphertext.
+	• Common letters : T, A, E, I, O
+	• Common 2-letter combinations (bigrams): TH, HE, IN, ER
+	• Common 3-letter combinations (trigrams): THE, AND, and ING
+
+--- Modern Symetric Ciphers --- 
+
+Block Ciphers
+	• An n-bit plaintext is encrypted to an n-bit ciphertext
+	• Based on a pseudorandom function
+		• Essentially a keyed permutation
+		• Takes in a fixed number of bytes, spits out a permutation of those bytes of the same size
+	• Block ciphers operate on chunks of data
+		• Divide the data to be encrypted up into blocks of fixed size, padding at the end
+		• Block size = input/output of the pseudorandom function (PRF)
+		• Blocks are fed into a PRF, and the ciphertext is based on output
+	• Block ciphers have a mode, a way of combining the blocks of a message and (often) randomness
+
+Data Encryption Standard (DES)
+	• DES is a block cipher - can only encrypt a block of data
+	• Designed by IBM, with modifications proposed by the National Security Agency
+	• US national standard from 1977 to 2001
+	• Block size for DES is 64 bits
+	• DES uses 56-bit keys although a 64-bit key is fed into the algorithm
+		• Eight bits are used solely for checking parity, and are thereafter discarded
+	• Theoretical attacks were identified.
+	• Triple DES can solve DES’s key size problem
+
+Advanced Encryption Standard (AES)
+	• AES is a block cipher
+	• Designed to be efficient in both hardware and software across a variety of platforms.
+	• 128-bit block size.
+	• Three different key sizes: 128, 192, and 256 bits
+	• No known exploitable algorithmic weaknesses
+	• We treat it like a black box that the adversary can’t push data through since they don’t have the key
+
+Need for Encryption Modes
+	• A block cipher encrypts only one block
+	• Needs a way to extend it to encrypt an arbitrarily long message
+	• Encryption mode or mode of operation refers to the many ways to make the input of an encryption algorithm different.
+	• Examples include:
+		• Electronic Codebook (ECB)
+		• Cipher Block Chaining (CBC)
+		• Propagating CBC (PCBC)
+		• Cipher Feedback (CFB)
+		• Output Feedback (OFB)
+		• Counter (CTR)
+
+Electronic Codebook (ECB) Mode
+	• Message is broken into independent blocks;
+	• Electronic Code Book (ECB): each block encrypted separately.
+	- Block ciphers are deterministic
+		- For a given m and K,
+		- E(K,m) always returns the same c
+	- Same fixed block size
+	• Block ciphers are deterministic
+		• For a given m and K, E(K,m) always returns the same c
+	• An eavesdropper could determine when messages are re-sent
+		• the same data block gets encrypted the same way,
+		• reveals patterns of data when a data block repeats
+		• when the same key is used, the same message is encrypted the same way
+
+How to make it non-deterministic?
+	• The randomness is called an initial vector, or IV
+	• Sent in the clear at the start of the message
+	• The adversary knows it
+	• Two encryptions of the same plain text, with different IVs, will have different cipher texts
+	• In a secure mode, the IV leaks no information about the plaintext
+
+Cipher Block Chaining (CBC) Mode
+	• The main purpose of IV is to ensure that even if two plaintexts are identical, their ciphertexts are still different, because different IVs will be used.
+	• Decryption can be parallelized
+	• Encryption cannot be parallelized
+
+Properties of CBC
+	• Randomized encryption: repeated text gets mapped to different encrypted data.
+		• IV must be randomly chosen to get this benefit
+	• Each ciphertext block depends on all preceding plaintext blocks.
+	• Usage: IV must be random, needs integrity but not confidentiality
+		• The IV is not secret (it is part of ciphertext)
+		• The adversary cannot control the IV
+
+Cipher Block Chaining (CBC) Mode
+	• Using openssl enc command to encrypt the same plaintext, same key, different IV
+	• We use the 128-bit (key size) AES algorithm
+	• The -aes-128-cbc option specifies CBC mode
+	• The -e option indicates encryption
+	• The -iv option is used to specify the Initialization Vector (IV)
+
+--- #2 MESSAGE AUTHENTICATION CODE (MAC) ---
+
+Data Integrity and Source Authentication
+	• Encryption does not protect data from modification by another party.
+	• Most encryption schemes are malleable:
+		• Modifying ciphertext result in (somewhat) predictable change in plaintext
+	• Need a way to ensure that data arrives at destination in its original form as sent by the sender.
+
+Message Authentication Code (MAC)
+	• Way to provide message integrity check
+		• Goal: Prevent an adversary from modifying the message
+	• Symmetric key integrity checks involve a block cipher
+		• Generation algorithm: takes as input, data and a key, yields a tag
+		• Verification algorithm: takes as input, data, a key, and a tag, returns if that tag is valid for that data and key
+	• Altering the data or tag without knowing the key results in verification failing!
+
+--- ONE-WAY HASH FUNCTIONS ---
+
+Properties of One-way Hash Function
+	• Difference from Hash Function
+		• Hash function: maps arbitrary size data to data of fixed size
+		• Example: f(x) = x mod 1000
+	• One-way Hash Properties:
+		• One-way: hash(m) = h, difficult to find m
+		• Collision resistant: Difficult to find m1 and m2
+		• hash(m1) = hash(m2)
+	• Common One-way Hash Functions:
+		• MD series
+		• SHA series
+
+How One-Way Hash Algorithm Works
+	• Construction method called Merkle–Damgard (Figure)
+	• Used by algorithms like MD5, SHA-1, and SHA-2
+
+MD One-Way Hash Functions
+	• MD stands for Message Digest
+	• Developed by Ron Rivest
+	• Includes MD2, MD4, MD5,and MD6
+	• Status of Algorithms:
+		• MD2, MD4 - severely broken (obsolete)
+		• MD5 - collision resistance property broken, one-way property not broken
+		• MD6 - developed in response to proposal by NIST
+
+SHA
+	• Published by NIST
+	• Includes SHA-0, SHA-1, SHA-2, and SHA-3
+	• Status of Algorithms:
+		• SHA-0: withdrawn due to flaw
+		• SHA-1: Designed by NSA; Collision attack found in 2017
+		• SHA-2: Designed by NSA; Includes SHA-256 and SHA-512; Other truncated versions; No significant attack found yet
+		• SHA-3: Released in 2015; Has different construction structure (compared to SHA-1 and SHA-2)
+
+Applications of One-Way Hash Functions
+	• Integrity Verification
+	• Password Verification
+	• Trusted Timestamping
+
+Integrity Verification
+	• Changing one bit of the original data changes hash value
+	• Usage examples:
+		• Detect change in system files
+		• Detect if file downloaded from website is corrupted
+
+Password Verification
+	• To login into account, user needs to tell a secret (password)
+	• Cannot store the secrets in their plaintext
+	• Need for:
+		• Password storage where nobody can know what the password is
+		• If provided with a password, it verified against the stored password
+	• Solution: one-way hash function
+	• Example: Linux stores passwords in the /etc/shadow file
+
+Message Authentication Code (MAC)
+	• A MAC scheme is a hash family, used for message authentication
+	• MAC(K,M) = HK(M)
+	• The sender and the receiver share secret K
+	• The sender sends (M, Hk(M))
+	• The receiver receives (X,Y) and verifies that HK(X)=Y, if so, then accepts the message as from the sender
+	• To be secure, an adversary shouldn’t be able to come up with (X’,Y’) such that HK(X’)=Y’.
+	- MAC: Using a shared secret (or a limit-bandwidth confidential channel) to achieve authenticity/integrity. 
+
+--- ASYMMETRIC KEY CRYPTO ---
+
+Symmetric Key vs Asymmetric Key
+	• Symmetric Key systems: both parties have the same key (shared secret)
+		• Requires you to share this secret
+		• Very fast systems
+	• What’s the limitation?
+		• Needs secure channel for key distribution
+		• Impossible for two parties having no prior relationship
+		• Needs many keys for n parties to communicate
+	• Asymmetric Key systems: one person holds a private key, everyone else knows their public key
+		• Keys are mathematically linked
+		• Very slow systems
+
+Concept of Public Key Encryption
+	• Each party has a pair (K, K-1) of keys
+		• K is the public key, and used for encryption
+		• K-1 is the private key, and used for decryption
+		• Satisfies DK-1[EK[M]] = M
+	• Knowing the public-key K, it is computationally infeasible to compute the private key K-1
+		• Offers only computational security. Secure Public Key encryption is impossible when P=NP, as deriving K-1 from K is in NP.
+	• The public key K may be made publicly available, e.g., in a publicly available directory
+		• Many can encrypt, only one can decrypt
+	• Public-key systems aka asymmetric crypto systems
+
+Public Key Cryptography Early History
+	• Historically same key was used for encryption and decryption
+	• Challenge: exchanging the secret key (e.g. face-to-face meeting)
+	• 1976: Whitfield Diffie and Martin Hellman
+		• key exchange protocol
+		• proposed a new public-key cryptosystem
+	• 1978: Ron Rivest, Adi Shamir, and Leonard Adleman (all from MIT)
+		• attempted to develop a cryptosystem
+		• created RSA algorithm
+
+Diffie-Hellman Key Exchange
+	• Allows communicating parties with no prior knowledge to exchange shared secret keys over an insecure channel
+	• Alice and Bob want to communicate
+	• Alice and Bob agree on:
+		• Number p: big prime number (such as a 2048-bit number)
+		• Generator g: small prime number (such as 2 and 3)
+	• Alice picks a random positive integer x < p
+	• Bob picks a random positive integer y < p
+
+RSA: Key Generation
+	• Need to generate modulus n, public key exponent e, private key exponent d
+	• Approach
+		• Choose p and q (large random prime numbers)
+			• They should be kept secretly
+			• p, q has between 512 and 2048 bits
+		• n = pq (should be large)
+			• n will be used as the modulus for both pubic and private keys
+			• Its length will be the key length.
+		• Choose e: 1 < e < φ(n) and e is relatively prime to φ(n)
+			• φ(n) = (p – 1) * (q – 1)
+			• Typically, e=65537
+		• Compute d, e*d º 1 mod φ(n) à d = 1/e mod φ(n)
+	• Result
+		• (e, n) is public key
+		• d is private key
+
+RSA: Encryption & Decryption
+	- Encryption
+		- Given a message M, 0 < M < n M (in the set) Zn- {0} use public key (e, n)
+		- compute C = Me mod n C (in the set) Zn- {0}
+	- Decryption
+		- Given a ciphertext C, use private key (d)
+		- Compute Cd mod n = (Me mod n)d mod n = Med mod n = M
+
+Digital Signatures
+	• Provide Integrity
+	• Generate the signature with my private key
+	• Anyone can validate it with my public key
+	• Key Use is inverse of encryption
+	• In practice, message may be long resulting in long signature and more computing time
+	• Instead, we generate a cryptographic hash value from the original message, and only sign the hash
+
+--- APPLICSTIONS OF ASYMMETRIC CRYPTO ---
+
+Applications: Authentication
+	• Typical way to conduct authentication is to use passwords
+	• Disadvantage:
+		• A sends password to B: B can get hacked and A may use same password for multiple accounts
+		• cannot be used for many parties to authenticate a single party
+	• Fundamental problem: password authentication depends on a shared secret
+	- Solution:
+		• Making the encryption and decryption keys different
+		• generate the authentication data using one key, and verify the data using a different key
+	- SSH Case Study
+		• SSH uses public-key based authentication to authenticate users
+		• Generate a pair of public and private keys: ssh-keygen -t rsa
+			• private key: /home/seed/.ssh/id_rsa
+			• public key: /home/seed/.ssh/id_rsa.pub
+		• For Server:
+			• send the public key file to the remote server using a secure channel
+			• add public key to the authorization file~/.ssh/authorized_keys
+			• Server can use key to authenticate clients
+
+Applications: HTTPS and TLS/SSL
+	• HTTPS protocol is used to secure web services
+	• HTTPS is based on the TLS/SSL protocol (uses both public key encryption and signature
+		• encryption using secret-key encryption algorithms
+		• public key algorithms are mainly used for key exchange
+
+Applications: Credit Card Chip Authentication
+	• Card contains a unique public and private key pair
+		• Private key is protected and will never be disclosed to the outside
+		• Public key is digitally signed by the issuer, so its authenticity can be verified by readers
+
+---------- Networking 101 ----------
+
+What is a Network?
+	• A collection of hosts
+		• End systems that want to communicate (forming a distributed system)
+		• Do so via the execution of a protocol
+	• Network infrastructure
+		• Special purpose equipment that only exists to allow hosts to communicate
+		• Do so via execution of protocols as well
+	• A collection of protocols executed by hosts and infrastructure
+	• Networks allow us to build distributed systems.
+
+Distributed Systems
+	• Essentially a distributed program (application)
+		• A program that needs resources on many disparate computers
+		• E.g., A multiplayer video game
+		• E.g., Web browsing (compare to accessing content on your local machine)
+	• Most distributed systems follow a client/server paradigm
+		• Servers wait for clients to start a session (e.g., web server)
+		• Clients initiate connections to servers and begin protocol execution (e.g., your web browser)
+	• Peer to Peer systems exist
+		• No clear concept of a client and server (all/most nodes act as both)
+
+The Internet: a “nuts and bolts” view
+	- Billions of connected computing devices:
+		§ hosts = end systems
+		§ running network apps at Internet’s “edge”
+	- Packet switches: forward packets (chunks of data)
+		§ routers, switches
+	- Communication links
+		§ fiber, copper, radio, satellite
+		§ transmission rate: bandwidth
+	- Networks
+		§ collection of devices, routers, links: managed by an organization
+ 	- Internet: “network of networks”
+		• Interconnected ISPs
+		§ protocols are everywhere
+			• control sending, receiving of messages
+			• e.g., HTTP (Web), streaming video, Skype, TCP, IP, WiFi, 4G, Ethernet
+		§ Internet standards
+			• RFC: Request for Comments
+		• IETF: Internet Engineering Task Force
+
+The Internet: a “services” view
+	• Infrastructure that provides services to applications:
+		• Web, streaming video, multimedia teleconferencing, email, games, ecommerce, social media, interconnected appliances, …
+	§ provides programming interface to distributed applications:
+		• “hooks” allowing sending/receiving apps to “connect” to, use Internet transport service
+		• provides service options, analogous to postal service
+
+What’s a protocol?
+	- Human protocols:
+		§ “what’s the time?”
+		§ “I have a question”
+		§ introductions
+	- Network protocols:
+		§ computers (devices) rather than humans
+		§ all communication activity in Internet governed by protocols
+	- Protocols define the format, order of messages sent and received among network entities, and actions taken on message transmission, receipt
+		- Rules for:
+			… specific messages sent
+			… specific actions taken when message received, or other events
+	• Agreements on how to communicate
+	• Publicly standardized, esp. via Requests for Comments (RFCs)
+		• RFC 793: TCP
+	• Code to the protocol and your product will work with other products
+
+Layers & Modularity
+	● Protocols can be built on top of other protocols
+		○ Example: Asking the time is built on top of the English protocol
+	● Protocols can be wrapped in other protocols
+		○ Example: Encryption
+	● Distributed systems can depend on (call out to) other distributed systems
+		○ To an outside entity, should look like everything happens locally
+		○ Albeit “slowly”
+	● Each layer relies on the services provided by the layer immediately below it.
+	● And provides service to the layer immediately above it
+	*** Layer structure example slide 21 ***
+	*** See how layers work slide 23 ***
+
+Web and HTTP
+	- First, a quick review…
+		§ web page consists of objects, each of which can be stored on different Web servers
+		§ object can be HTML file, JPEG image, Java applet, audio file,…
+		§ web page consists of base HTML-file which includes several referenced objects, each addressable by a URL, e.g.,
+
+HTTP overview
+	- HTTP: hypertext transfer protocol
+		§ Web’s application-layer protocol
+		§ client/server model:
+			• client: browser that requests, receives, (using HTTP protocol) and “displays” Web objects
+			• server: Web server sends (using HTTP protocol) objects in response to requests
+	- HTTP uses TCP:
+		§ client initiates TCP connection (creates socket) to server, port 80
+		§ server accepts TCP connection from client
+		§ HTTP messages (application-layer protocol messages) exchanged between browser (HTTP client) and Web server (HTTP server)
+		§ TCP connection closed
+	- HTTP is “stateless”
+		§ server maintains no information about past client requests
+		- protocols that maintain “state” are complex!
+			§ past history (state) must be maintained
+			§ if server/client crashes, their views of “state” may be inconsistent, must be reconciled
+HTTP connections: two types
+	- Non-persistent HTTP
+		1. TCP connection opened
+		2. at most one object sent over TCP connection
+		3. TCP connection closed downloading multiple objects required multiple connections
+		- example on slide 37
+	- Persistent HTTP
+		§TCP connection opened to a server
+		§multiple objects can be sent over single TCP connection between client, and that server
+		§TCP connection closed
+
+DNS: Domain Name System
+	- people: many identifiers:
+		• SSN, name, passport #
+	- Internet hosts, routers:
+		• IP address (32 bit) - used for addressing datagrams
+		• “name”, e.g., utk.edu - used by humans
+		Q: how to map between IP address and name, and vice versa ?
+	- Domain Name System (DNS):
+		§ distributed database implemented in hierarchy of many name servers
+		§ application-layer protocol: hosts, DNS servers communicate to resolve names (address/name translation)
+			• note: core Internet function, implemented as application-layer protocol
+			• complexity at network’s “edge”
+
+DNS: services, structure
+	- DNS services:
+		§ hostname-to-IP-address translation
+		§ host aliasing
+			• canonical, alias names
+		§ mail server aliasing
+		§ load distribution
+			• replicated Web servers: many IP addresses correspond to one name
+	Q: Why not centralize DNS?
+		§ single point of failure
+		§ traffic volume
+		§ distant centralized database
+		§ maintenance
+	A: doesn‘t scale!
+		§ Comcast DNS servers alone: 600B DNS queries/day
+		§ Akamai DNS servers alone: 2.2T DNS queries/day
+
+More about DNS records
+	§ A: maps a name to one or more IP addresses
+	§ CNAME: maps a name to another name
+	§ ALIAS: maps a name to another name
+
+DNS: a distributed, hierarchical database
+	- Client wants IP address for www.amazon.com; 1st approximation:
+		§ client queries root server to find .com DNS server
+		§ client queries .com DNS server to get amazon.com DNS server
+		§ client queries amazon.com DNS server to get IP address for www.amazon.com
+
+Local DNS name servers
+	§ when host makes DNS query, it is sent to its local DNS server
+		• Local DNS server returns reply, answering:
+			• from its local cache of recent name-to-address translation pairs (possibly out of date!)
+			• forwarding request into DNS hierarchy for resolution
+		• each ISP has local DNS name server; to find yours:
+			• MacOS: % scutil --dns
+			• Windows: >ipconfig /all
+	§ local DNS server doesn’t strictly belong to hierarchy
+
+DNS name resolution: recursive query
+	- Recursive query: 
+		§ puts burden of name resolution on contacted name server
+		§ heavy load at upper levels of hierarchy?
+
+Caching DNS Information
+	§ once (any) name server learns mapping, it caches mapping, and immediately returns a cached mapping in response to a query
+		• caching improves response time
+		• cache entries timeout (disappear) after some time (TTL)
+		• TLD servers typically cached in local name servers
+	§ cached entries may be out-of-date
+		• if named host changes IP address, may not be known Internetwide until all TTLs expire!
+		• best-effort name-to-address translation!
+
+--- Transport Layer --- 
+
+Transport services and protocols
+	§ provide logical communication between application processes running on different hosts
+	§ transport protocols actions in end systems:
+		• sender: breaks application messages into segments, passes to network layer
+		• receiver: reassembles segments into messages, passes to application layer
+	§ two transport protocols available to Internet applications
+		• TCP, UDP
+Two principal Internet transport protocols
+	§ TCP: Transmission Control Protocol
+		• reliable, in-order delivery
+		• congestion control
+		• flow control
+		• connection setup
+	§UDP: User Datagram Protocol
+		• unreliable, unordered delivery
+		• no-frills extension of “best-effort” IP
+	§ services not available:
+		• delay guarantees
+		• bandwidth guarantees
+
+TCP: overview RFCs: 793,1122, 2018, 5681, 7323
+	§ point-to-point:
+		• one sender, one receiver
+	§ reliable, in-order byte steam:
+		• no “message boundaries"
+	§ full duplex data:
+		• bi-directional data flow in same connection
+		• MSS: maximum segment size
+	§ cumulative ACKs
+	§ pipelining:
+		• TCP congestion and flow control set window size
+	§ connection-oriented:
+		• handshaking (exchange of control messages) initializes sender, receiver state before data exchange
+	§ flow controlled:
+		• sender will not overwhelm receiver
+
+UDP: User Datagram Protocol
+	§ “no frills,” “bare bones” Internet transport protocol
+	§ “best effort” service, UDP segments may be:
+		• lost
+		• delivered out-of-order to app
+	§ connectionless:
+		• no handshaking between UDP sender, receiver
+		• each UDP segment handled independently of others
+	- Why is there a UDP?
+		§ no connection establishment (which can add RTT delay)
+		§ simple: no connection state at sender, receiver
+		§ small header size
+		§ no congestion control
+		§ UDP can blast away as fast as desired!
+		§ can function in the face of congestion
+
+UDP: User Datagram Protocol
+	§ UDP use:
+		§ streaming multimedia apps (loss tolerant, rate sensitive)
+		§ DNS
+		§ SNMP
+		§ HTTP/3
+	§ if reliable transfer needed over UDP (e.g., HTTP/3):
+		§ add needed reliability at application layer
+		§ add congestion control at application layer
+
+--- Newtwork Layer --- 
+
+Network-layer services and protocols
+	§ transport segment from sending to receiving host
+		• sender: encapsulates segments into datagrams, passes to link layer
+		• receiver: delivers segments to transport layer protocol
+	§ network layer protocols in every Internet device: hosts, routers
+	§ routers:
+		• examines header fields in all IP datagrams passing through it
+		• moves datagrams from input ports to output ports to transfer datagrams along end-end path
+
+Two key network-layer functions
+	- network-layer functions:
+		• forwarding: move packets from a router’s input link to appropriate router output link 
+		§ routing: determine route taken from source to destination by packets from source to destination
+			• routing algorithms
+	- analogy: taking a trip
+		§ forwarding: process of getting through single interchange
+		§ routing: process of planning trip from source to destination
+
+Routing protocols
+	- Routing protocol goal: determine “good” paths (equivalently, routes), from sending hosts to receiving host, through network of routers
+		• path: sequence of routers packets traverse from given initial source host to final destination host
+		• “good”: least “cost”, “fastest”, “least congested”
+		• routing: a “top-10” networking challenge!
+
+IP addressing: introduction
+	• IP address: 32-bit identifier associated with each host or router interface
+	• interface: connection between host/router and physical link
+		• router’s typically have multiple interfaces
+		• host typically has one or two interfaces (e.g., wired Ethernet, wireless 802.11)
+
+IP
+	● All (network reachable) computers have an IP address
+		○ Either 32 bits (IPv4) or 128 bits (IPv6) in length
+	● The most significant (big endian) bits identify the network
+	● The least significant bits identify the exact host
+		○ Example:
+			hydra11.eecs.utk.edu : 160.36.57.196
+			hydra12.eecs.utk.edu : 160.36.57.217
+			Our network could be identified by : 160.36.57.0/24
+			(Technically it’s 160.36.56.0/22)
+	● IP layer “units” of data are called packets
+
+---------- HTTPS/TLS SECURITY & PUBLIC KEY INFRASTRUCTURE ----------
+
+Public Key Infrastructure
+	• Certificate Authority (CA): a trusted party, responsible for verifying the identity of users, and then bind the verified identity to a public keys.
+	• Digital Certificates: A document certifying that the public key included inside does belong to the identity described in the document.
+		• X.509 standard
+
+The Core Functionalities of CA
+	• Verify the subject
+		• Ensure that the person applying for the certificate either owns or represents the identity in the subject field.
+	• Signing digital certificates
+		• CA generates a digital signature for the certificate using its private key.
+		• Once the signature is applied, the certificate cannot be modified.
+		• Signatures can be verified by anyone with the CA’s public key.
+
+Being a Certificate Authority
+	• Let’s go through the process
+		• How a CA issues certificates
+		• How to get a certificate from a CA
+		• How to set up a web server using a certificate
+
+CA Setup
+	• Our CA will be called ModelCA
+	• We need to set up the following for ModelCA:
+		• Generate public/private key pair
+		• Create a X.509 certificate (who is going to sign it?)
+		• We assume ModelCA is a root CA, so it is going to sign the certificate itself, i.e. self-signed.
+
+Discussion Question
+	• Question: If the ModelCA’s certificate is self-signed, how do we verify it?
+	• Answer: There is no way to verify it. We just make sure that the certificate is obtained in a trusted way
+		• Come with the operating system (if we trust OS, we trust the cert.)
+		• Come with the software (if we trust the software, we trust the cert.)
+		• Manually added (if we trust our own decision, we trust the cert.)
+		• Sent to us by somebody whom we don’t trust (don’t trust the cert.)
+
+Root and Intermediate Certificate Authorities
+	- There are many CAs in the real world, and they are organized in a hierarchical structure
+
+Root CAs and Self-Signed Certificate
+	• A root CA’s public key is also stored in an X.509 certificate. It is self-signed.
+	• Self-signed: the entries for the issuer and the subject are identical.
+	• How can they be trusted?
+		• Public keys of root CAs are pre-installed in the OS, browsers and other software
+
+Trusted CAs in the Real World
+	• Not all of the trusted CAs are present in all browsers.
+	• According to W3Techs in April 2017, Comodo takes most of the market share followed by IdenTrust, Symantec Group, GoDaddy Group, GlobalSign and DigiCert.
+	• The list of trusted CAs supported by browser can be found:
+		• For the Chrome browser:
+			• Settings -> Show advanced settings -> Manage Certificates
+		• For the Firefox browser:
+			• Edit -> Preferences -> Advanced -> Certificates -> View Certificates -> Certificate Manager -> Authorities
+
+--- How PKI Defeats the MITM Attack ---
+
+How PKI Defeats the MITM Attack
+	• Assume that Alice wants to visit https://example.com
+	• When the server sends its public key to Alice, an attacker intercepts the communication. The attacker can do the following things:
+		• Attacker forwards the authentic certificate from example.com
+		• Attacker creates a fake certificate
+		• Attacker sends his/her own certificate to Alice
+
+Attacker Forwards the Authentic Certificate
+	• Attacker (Mike) forwards the authentic certificate
+	• Alice sends to the server a secret, encrypted using the public key.
+	• The secret is used for establishing an encrypted channel between Alice and server
+	• Mike doesn’t know the corresponding private key, so he cannot find the secret.
+	• Mike can’t do much to the communication, except for DoS.
+	• MITM attack fails.
+
+Attacker Creates a Fake Certificate
+	• Attacker (Mike) creates fraudulent certificate for the example.com domain.
+	• Mike replaces the server’s public with his own public key.
+	• Trusted CAs will not sign Mike’s certificate request as he does not own example.com.
+	• Mike can sign the fraudulent certificate by himself and create a self-signed certificate.
+	• Alice’s browser will not find any trusted certificate to verify the received certificate and will give the following warning:
+	• MITM attack fails if the user decide to terminate the connection
+
+Attacker Sends His/Her Own Certificate
+	• Attacker’s certificate is valid.
+	• Browser checks if the identity specified in the subject field of the certificate matches the Alice’s intent.
+		• There is a mismatch: attacker.com ≠ example.com
+	• Browser terminates handshake protocol: MITM fails
+
+Emulating an MITM Attack
+	• DNS Attack is a typical approach to achieve MITM
+	• We emulate an DNS attack by manually changing the /etc/hosts file on the user’s machine to map example.com to the IP address of the attacker’s machine.
+	• On attacker’s machine we host a website for example.com.
+	• We use the attacker’s X.509 certificate to set up the server
+	• The Common name field of the certificate contains attacker32.com
+	• When we visit example.com, we get an error message
+
+The Importance of Verifying Common Name
+	• During TLS/SSL handshake browsers conduct two important validations
+		1) Checks whether the received certificate is valid or not.
+		2)Verifies whether the subject (Common Names) in the certificate is the same as the hostname of the server.
+	• Not verifying the common name is a common mistake in software 
+
+The Man-In-The-Middle Proxy
+	• Proxy creates a self-signed CA certificate, which is installed on the user’s browser
+	• The routing on the user machine is configured; all outgoing HTTPS traffic is directed towards the proxy machine
+	• When user tries to visit an HTTPS site:
+		• Proxy intercepts communication
+		• Creates a fake certificate
+		• Browser already has the proxy’s certificate in its trusted list to be able to verify all the fake certificates
+		• Proxy becomes MITM 
+
+Attack on CA’s Verification Process
+	• CA’s job has two parts:
+		• Verify the relationship between certificate applicant and the subject information inside the certificate
+		• Put a digital signature on the certificate
+	• Case study: Comodo Breach [March 2011]
+		• Popular root CA.
+		• The approval process in Southern Europe was compromised.
+		• Nine certificates were issued to seven domains and hence the attacker could provide false attestation.
+		• One of the affected domain (a key domain for the Firefox browser): addons.mozilla.org
+
+Attack on CA’s Signing Process
+	• If the CA’s private key is compromised, attackers can sign a certificate with any arbitrary data in the subject field.
+	• Case Study: the DigiNotar Breach [June-July 2011]
+		• A top commercial CA
+		• Attacker got DigiNotar’s private key
+		• 531 rogue certificates were issued.
+		• Traffic intended for Google subdomains was intercepted: MITM attack.
+	• How CAs Protect Their Private Key
+		• Hardware Security Model (HSM)
+
+Attacks on Algorithms
+	• Digital Certificates depend on two types of algorithms
+		• one-way hash function and digital signature
+	• Case Study: the Collision-Resistant Property of OneWay Hash
+		• At CRYPTO2004, Xiaoyun Wang demonstrated collision attack against MD5.
+		• In February 2017, Google Research announced SHAttered attack
+			• Attack broke the collision-resistant property of SHA-1
+			• Two different PDF files with the same SHA-1 has was created.
+		• Countermeasures: use stronger algorithm, e.g. SHA256.
+
+Attacks on User Confirmation
+	• After verifying the certificate from the server, client software is sure that the certificate is valid and authentic
+	• In addition, the software needs to confirm that the server is what the user intends to interact with.
+	• Confirmation involves two pieces of information
+		• Information provided or approved by user
+		• The common name field inside the server’s certificate
+		• Some software does not compare these two pieces of information: security flaw
+
+Attacks on Confirmation: Case Study
+	- Phishing Attack on Common Name with Unicode
+		• Zheng found out several browsers do not display the domain name correctly if name contains Unicode.
+		• xn—80ak6aa92e.com is encoded using Cyrillic characters. But domain name displayed by browser likes like apple.com
+		• Attack:
+			• Get a certificate for xn—80ak6aa92e.com
+			• Get user to visit xn—80ak6aa92e.com, so the common name is matched
+			• User’s browser shows that the website is apple.com. User can be fooled.
+		• Had the browser told the user that the actual domain is not the real apple.com, the user would stop.
+
+--- TLS ---
+
+Overview of TLS
+	• Transport Layer Security (TLS) is a protocol that provides a secure channel between two communicating applications. The secure channel has 3 properties:
+		• Confidentiality: Nobody other than the two ends of the channel can see the actual content of the data transmitted.
+		• Integrity: Channel can detect any changes made to the data during transmission
+		• Authentication: At least one end of the channel needs to be authenticated, so the other end knows who it is talking to.
+
+TLS Layer
+	• TLS sits between the Transport and Application layer
+		• Unprotected data is given to TLS by Application layer
+		• TLS handles encryption, decryption and integrity checks
+		• TLS gives protected data to Transport layer
+
+TLS Handshake
+	• Before a client and server can communicate securely, several things need to be set up first:
+		• Encryption algorithm and key
+		• MAC algorithm
+		• Algorithm for key exchange
+	• These cryptographic parameters need to be agreed upon by the client and server
+	• This is the primary purpose of the handshake protocol
+
+Certificate Verification
+	• The client first does a validation check of the certificate
+		• Check expiration date, signature validity, etc.
+		• Hostname and certificate’s common name match
+	• The client needs to have the singing CA’s public-key certificate.
+
+Key Generation and Exchange
+	• Although public-key algorithms can be used to encrypt data, it is much more expensive than secret-key algorithms.
+		• TLS uses PKI for key exchange.
+		• After that, server and client switch to secret-key encryption algorithm
+	• The entire key generation consists of three steps:
+		• Step 1: Generating pre-master secret
+		• Step 2: Generating master secret
+		• Step 3: Generating session keys
+
+TLS Data Transmission
+	• Once the handshake protocol is finished, client and server can start exchanging data.
+	• Data is transferred using records.
+	• Each record contains a header and a payload
+
+---------- DNS Security ----------
+
+DNS Domain Hierarchy
+	● Below ROOT, we have Top-Level Domain (TLD). Ex: In www.example.com, the TLD is .com.
+	● The next level of domain hierarchy is second-level domain which are usually assigned to specific entities such as companies, schools etc
+	● Domain namespace is organized in a hierarchical tree-like structure.
+	● Each node is called a domain, or subdomain.
+	● The root of the domain is called ROOT, denoted as ‘ . ‘.
+
+DNS ROOT Servers
+	● The root zone is called ROOT.
+	● There are 13 authoritative nameservers (DNS root servers) for this zone.
+	● They provide the nameserver information about all TLDs
+		○ https://www.internic.net/domain/root.zone
+	● They are the starting point of DNS queries.
+
+Top Level Domain (TLD)
+	● Infrastructure TLD: .arpa
+	● Generic TLD (gTLD): .com, .net,
+	● Sponsored TLD (sTLD): These domains are proposed and sponsored by private agencies or organizations that establish and enforce rules 
+	restricting the eligibility to use the TLD: .edu, .gov, .mil, .travel, .jobs
+	● Country Code TLD (ccTLD): .au (Australia), .cn (China), .fr (France)
+	● Reserved TLD: .example, .test, .localhost, .invalid
+
+Local DNS Files
+	● /etc/host: stores IP addresses for some hostnames. Before machine contacts the local DNS servers, it first looks into this file for the IP address.
+	● /etc/resolv.conf: provide information to the machine’s DNS resolver about the IP address of the local DNS server. The IP address of the local DNS server provided by DHCP is also stored here.
+
+Local DNS Server and Iterative Query Process
+	● The iterative process starts from the ROOT Server. If it doesn’t know the IP address, it sends back the IP address of
+	the nameservers of the next level server (.NET server) and then the last level server (example.net) which provides the answer.
+
+DNS Response
+	- There are 4 types of sections in a DNS response :
+		● Question section : Describes a question to a nameserver
+		● Answer section : Records that answer the question
+		● Authority section : Records that point toward authoritative nameservers
+		● Additional section : Records that are related to the query.
+	- We see that as root server doesn’t know the answer there is no answer section, but tells us about the authoritative nameservers (NS Record) along with
+	their IP addresses in the Additional section (A record).\
+
+DNS cache
+	● When the local DNS server gets information from other DNS servers, it caches the information.
+	● Each piece of information in the cache has a time-to-live value, so it will be eventually time out and removed from the cache.
+
+DNS Attacks
+	● Denial-of-Service Attacks (DoS): When the local DNS servers and the authoritative nameservers do not respond to the DNS queries, the machines cannot retrieve IP addresses which
+	essentially cuts down the communication.
+	● DNS Spoofing Attacks: 
+		o Primary goal: provide a fraudulent IP address to victims, tricking them to communicate with a machine that is different from their intention.
+		o Example: If a user’s intention is to visit a bank’s web site to do online banking, but the IP address obtained through the DNS process is attacker’s machine,
+		the user machine will communicate to the attacker’s web server.
+
+1) DNS Attacks on Compromised Machines
+	● If attackers have gained the root privileges on a machine,
+		o Modify /etc/resolv.conf: use malicious DNS server as the machine’s local DNS server and can control the entire DNS process.
+		o Modify /etc/hosts: add new records to the file, providing the IP addresses for some selected domains. For example, attackers can modify IP address of www.bank32.com which
+		can lead to attacker’s machine.
+
+Challenges
+	- Challenges: For remote attackers who are not on the same network as the local DNS server, spoofing replies are much more difficult, because they need to guess two random
+	numbers used by the query packet:
+		● Source port number (16-bit random number)
+		● Transaction ID (16-bit random number)
+	- Cache effect: If one attempt fails, the actual reply will be cached by the local DNS server; the attacker needs to wait for the cache to timeout for the next attempt.
+
+The Kaminsky Attack
+	- How can we keep forging replies without worrying about the cache effect?
+	- Kaminsky’s Idea:
+		• Ask a different question every time, so caching the answer does not matter, and the local DNS server will send out a new query each time.
+		• Provide forged answer in the Authority section
+
+Attacks from Malicious DNS Server
+	- When a user visits a website, such as attacker32.com, a DNS query will eventually come to the authoritative nameserver of the attacker32.com domain. In addition to providing an IP
+	address in the answer section of the response, DNS server can also provide information in the authority and additional sections. Attackers can use these sections to provide
+	fraudulent information.
+	- See examples on slide 24
+
+Protection Against DNS Cache Poisoning Attacks
+	- DNSSEC
+		● DNSSEC is a set of extension to DNS, aiming to provide authentication and integrity checking on DNS data.
+		● With DNSSEC, all answers from DNSSEC protected zones are digitally signed.
+		● By checking the digital signatures, a DNS resolver is able to check if the information is authentic or not.
+		● DNS cache poisoning will be defeated by this mechanism as any fake data will be detected because they will fail the signature checking.
+
+- Protecting against DNS cache poisoning attacks
+
+Denial of Service Attacks on Root Servers
+	- Attacks on the Root and TLD Servers : Root nameservers: If the attackers can bring down the servers of the root zone, they can bring down the entire Internet. However,
+	attack root servers is difficult:
+		● The root nameservers are highly distributed. There are 13 (A,B….M) root nameservers (server farm) consisting of a large number of redundant computers to provide reliable services.
+		● As the nameservers for the TLDs are usually cached in the local DNS servers, the root servers need not be queried till the cache expires (48 hrs). Attacks on
+		the root servers must last long to see a significant effect.
+
+Denial of Service Attacks on TLD Servers
+	- Nameservers for the TLDs are easier to attack. TLDs such as gov, com, net etc have quite resilient infrastructure against DOS attacks. But certain obscure TLDs like country-code TLDs do not
+	have sufficient infrastructure. Due to this, the attackers can bring down the Internet of a targeted country.
+	- Specific attacks listed on slide 32
+
+---------- Attacks on TCP ----------
+
+TCP 3-way Handshake Protocol
+	- SYN Packet:
+		• The client sends a special packet called SYN packet to the server using a randomly generated number x as its sequence number.
+	- SYN-ACK Packet:
+		• On receiving it, the server sends a reply packet using its own randomly generated number y as its sequence number.
+	- ACK Packet
+		• Client sends out an ACK packet to conclude the handshake
+
+SYN Flooding Attack
+	- Idea : To fill the queue storing the half-open connections so that there will be no space to store TCB for any new half-open connection,
+	basically the server cannot accept any new SYN packets.
+	- Steps to achieve this : Continuously send a lot of SYN packets to the server. This consumes the space in the queue by inserting the TCB record.
+		● Do not finish the 3rd step of handshake as it will dequeue the TCB record.
+
+SYN Flooding Attack
+	● When flooding the server with SYN packets, we need to use random source IP addresses; otherwise the attacks may be blocked by the firewalls.
+	● The SYN+ACK packets sent by the server may be dropped because forged IP address may not be assigned to any machine. If it does reach an existing machine, a RST packet
+	will be sent out, and the TCB will be dequeued.
+	● As the second option is less likely to happen, TCB records will mostly stay in the queue. This causes SYN Flooding Attack
+
+Countermeasures: SYN Cookies
+	● After a server receives a SYN packet, it calculates a keyed hash (H) from the information in the packet using a secret key that is only known to the server.
+	● This hash (H) is sent to the client as the initial sequence number from the server. H is called SYN cookie.
+	● The server will not store the half-open connection in its queue.
+	● If the client is an attacker, H will not reach the attacker.
+	● If the client is not an attacker, it sends H+1 in the acknowledgement field.
+	● The server checks if the number in the acknowledgement field is valid or not by recalculating the cookie.
+
+TCP Reset Attack
+	- To disconnect a TCP connection :
+		● A sends out a “FIN” packet to B.
+		● B replies with an “ACK” packet. This closes the A-to-B communication.
+		● Now, B sends a “FIN” packet to A and A replies with “ACK”.
+	- Using Reset flag :
+		● One of the parties sends RST packet to immediately break the connection.
+
+TCP Reset Attack
+	- Goal: To break up a TCP connection between A and B.
+	- Spoofed RST (Reset) Packet: The following fields need to be set correctly:
+		● Source IP address, Source Port,
+		● Destination IP address, Destination Port
+		● Sequence number (within the receiver’s window)
+
+---------- Web Security: SQL Injection ----------
+
+- Databases
+	• Provide data storage & data manipulation
+	• Database designer lays out the data into tables
+	• Programmers query the database
+	• Database Management Systems (DBMSes) provide
+	• semantics for how to organize data
+	• transactions for manipulating data sanely
+	• a language for creating & querying data and APIs to interoperate with other languages
+	• management via users & permissions
+
+- SQL (Standard Query Language)
+	>> SELECT Age FROM Users WHERE Name=‘Alice’;
+	>> UPDATE Users SET Department=‘Art’ WHERE Name=‘Alice’; -- this is a comment
+	>> INSERT INTO Users Values (‘Dave’, ‘M’, EECS, ….);
+	>> DROP TABLE Users;
+
+- Server-side code
+	• Website
+	• Login Code (PHP)
+		$result = mysql_query(“select * from Users where(name=‘$user’ and password=‘$pass’);”);
+
+- SQL Injection
+	$result = mysql_query(“select * from Users where(name=‘alice’or 1=1); -- and password=‘$pass’);”);
+	$result = mysql_query(“select * from Users where(name=‘alice’or 1=1); DROP TABLE Users -- and password=‘$pass’);”);
+
+- The Fundamental Cause
+	- Mixing data and code together is the cause of several types of vulnerabilities and attacks including SQL Injection 
+	attack, XSS attack, attacks on the system() function and format string attacks.
+
+- SQL Injection Countermeasures
+	• Blacklisting: Delete the characters you don’t want
+		• ’
+		• --
+		• ;
+	• Downside: “Peter O’Connor”
+		• You want these characters sometimes!
+		• How do you know if/when the characters are bad?
+
+Countermeasures: Filtering and Encoding Data
+	• Before mixing user-provided data with code, inspect the data. Filter out any character that may be interpreted as code.
+	• Special characters are commonly used in SQL Injection attacks. To get rid of them, encode them.
+	• Encoding a special character tells parser to treat the encoded character as data and not as code.
+	• PHP’s mysqli extension has a built-in method called mysqli::real_escape_string(). It can be used to encode the characters that have special meanings in SQL.
+
+Countermeasures: Prepared Statement
+	• Fundament cause of SQL injection: mixing data and code
+	• Fundament solution: separate data and code.
+	• Main Idea: Sending code and data in separate channels to the database server. This way the database server knows not to retrieve any code from the data channel.
+	• How: using prepared statement
+	• Prepared Statement: It is an optimized feature that provides improved performance if the same or similar SQL statement needs to be executed repeatedly. Using prepared
+	statements, we send an SQL statement template to the database, with certain values called parameters left unspecified. The database parses, compiles and performs query
+	optimization on the SQL statement template and stores the result without executing it. We later bind data to the prepared statement
+		- Using prepared statements, we separate code and data
+
+Why Are Prepared Statements Secure?
+	• Trusted code is sent via a code channel.
+	• Untrusted user-provided data is sent via data channel.
+	• Database clearly knows the boundary between code and data.
+	• Data received from the data channel is not parsed.
+	• Attacker can hide code in data, but the code will never be treated as code, so it will never be attacked.
+
+---------- Web Security: Cookie ----------
+
+HTTP is stateless
+	• The lifetime of an HTTP session is typically:
+		• Client connects to the server
+		• Client issues a request
+		• Server responds	
+		• Client issues a request for something in the response
+		• … repeat …
+		• Client disconnects
+	• HTTP has no means of noting “oh this is the same client from that previous session”
+	• With this alone, you’d have to log in at every page load
+	• Obviously, we want to interact with "stateful" servers all the time
+	• "Stateless" means the HTTP protocol itself does not store state
+	• If state is desired, is implemented as a layer on top of HTTP
+
+Maintaining state across HTTP sessions
+	• Server processing results in intermediate state
+	• Send the state to the client in hidden fields
+	• Client returns the state in subsequent responses
+
+Statefulness with Cookies
+	• Server stores state, indexes it with a cookie
+	• Send this cookie to the client
+	• Client stores the cookie and returns it with subsequent queries to that same server
+
+History of cookies
+	• Implemented in 1994 in Netscape and described in 4-page draft
+	• No spec for 17 years
+		• Attempt made in 1997, but made incompatible changes
+		• Another attempt in 2000 ("Cookie2"), same problem
+		• Around 2011, another effort succeeded (RFC 6265)
+	• Ad-hoc design has led to interesting issues
+Cookies
+	- Cookies are key-value pairs
+	- See slide 39 of lecture 19 for cookie example
+
+How long can cookies last?
+	• Sites can set Expires to a very far-future date and the cookie will last until the user clears it.
+	• 2007: "The Google Blog announced that Google will be shortening the expiration date of its cookies from the year 2038
+	to a two-year life cycle." – Search Engine Land
+	• When Expires not specified, lasts for current browser session
+	• Caveat: Browsers do session restoring, so can last way longer
+
+Why use cookies?
+	• Personalization
+		• Let an anonymous user customize your site
+		• Store font choice, etc., in the cookie
+	• Tracking users
+		• Advertisers want to know your behavior
+		• Ideally build a profile across different websites
+			• Read about iPad on CNN, then see ads on Amazon?!
+		• How can an advertiser (A) know what you did on another site (S)?
+
+Session hijacking
+	• Sending cookies over unencrypted HTTP is a very bad idea
+	• If anyone sees the cookie, they can use it to hijack the user's session
+	• Attacker sends victim's cookie as if it was their own
+	• Server will be fooled
+• Firesheep (2010)
+
+Session hijacking mitigation
+	• Use Secure cookie attribute to prevent cookie from being sent over unencrypted HTTP connections
+	• Set-Cookie: key=value; Secure
+
+---------- Cross Site Request Forgery (CSRF) ----------
+
+Cross-Site Requests and Its Problems
+	● When a page from a website sends an HTTP request back to the website, it is called same-site request.
+	● If a request is sent to a different website, it is called cross-site request because where the page comes from and where the request
+	goes are different.
+		Eg : A webpage (not Facebook) can include a Facebook link, so when users click on the link, HTTP request is sent to Facebook.
+
+Cross-Site Requests and Its Problems
+	● When a request is sent to example.com from a page coming from example.com, the browser attaches all the cookies
+	belonging to example.com.
+	● Now, when a request is sent to example.com from another site (different from example.com), the browser will attach the
+	cookies too.
+	● Because of above behaviour of the browsers, the server cannot distinguish between the same-site and cross-site requests
+	● It is possible for third-party websites to forge requests that are exactly the same as the same-site requests.
+	● This is called Cross-Site Request Forgery (CSRF).
+
+Cross-Site Request Forgery
+	● Target: User who has some sort of account on a vulnerable server where requests from the user’s browser to the server have a predictable structure
+	● Attack goal: make requests to the server via the user’s browser that look to the server like the user intended to make them
+	● Attacker tools: ability to get the user to visit a web page under the attacker’s control
+	● Key tricks:
+		○ Requests to the web server have predictable structure
+		○ User of something like <img src=…> to force the victim to send it
+
+Fundamental Causes of CSRF
+	● The server cannot distinguish whether a request is cross-site or same-site
+		○ Same-site request: coming from the server’s own page. Trusted. ○ Cross-site request: coming from other site’s pages. Not Trusted. ○ We cannot treat these two types of requests the same.
+	● Does the browser know the difference?
+		○ Of course. The browser knows from which page a request is generated.
+		○ Can browser help?
+	● How to help server?
+		○ Referrer header (browser’s help)
+		○ Same-site cookie (browser’s help)
+		○ Secret token (the server helps itself to defend against 
+
+Countermeasures: Referrer Header
+	● HTTP header field identifying the address of the web page from where the request is generated.
+	● A server can check whether the request is originated from its own pages or not.
+	● This field reveals part of browsing history causing privacy concern and hence, this field is mostly removed from the header.
+	● The server cannot use this unreliable source.
+
+Countermeasures: Same-Site Cookies
+	● A special type of cookie in browsers like Chrome and Opera, which provide a special attribute to cookies called SameSite.
+	● This attribute is set by the servers and it tells the browsers whether a cookie should be attached to a cross-site request or not.
+	● Cookies with this attribute are always sent along with same-site requests, but whether they are sent along with cross-site depends on the value of this attribute.
+	● Values
+		● Strict (Not sent along with cross-site requests)
+		● Lax (Sent with cross-site requests only for when a user is navigating to the origin site)
+	● If the user is on www.web.dev and requests an image from static.web.dev then that is a same-site request.
+	● However, how about github.io?
+		○ Considered as separate sites
+		○ abc.github.io and requests an image from 1234.github.com ==> crosssite request
+	● How can we know that?
+		○ https://publicsuffix.org/list/
+
+Common warnings
+	● `SameSite=None` requires `Secure`
+		○ A `Secure` cookie is only sent to the server with an encrypted request over the HTTPS protocol.
+	● Cookies without `SameSite` default to `SameSite=Lax`
+
+Countermeasures: Secret Token
+	● The server embeds a random secret value inside each web page.
+	● When a request is initiated from this page, the secret value is included with the request.
+	● The server embeds a random secret value inside each web page.
+	● When a request is initiated from this page, the secret value is included with the request.
+	● The server checks this value to see whether a request is cross-site or not.
+	● Pages from a different origin will not be able to access the secret value. This is guaranteed by browsers (the same origin policy)
+	● The secret is randomly generated and is different for different users. So, there is no way for attackers to guess or find out this secret.
+
+The Cross-Site Scripting Attack
+	● In XSS, an attacker injects his/her malicious code to the victim’s browser via the target website.
+	● When code comes from a website, it is considered as trusted with respect to the website, so it can access and change the content on the
+	pages, read cookies belonging to the website and sending out
+	● Basically, code can do whatever the user can do requests on behalf of the user.
+	inside the session.
+
+Types of XSS Attacks
+	● Non-persistent (Reflected) XSS Attack
+	● Persistent (Stored) XSS Attack
+
+Non-persistent (Reflected) XSS Attack
+	- If a website with a reflective behavior takes user inputs, then :
+	● Attackers can put JavaScript code in the input, so when the input is reflected back, the JavaScript code will be injected into the web page from the website.
+	● Assume a vulnerable service on website : http://www.example.com/search?input=word, where word is provided by the users.
+	● Now the attacker sends the following URL to the victim and tricks him to click the link: http://www.example.com/search?input=<script>alert(“attack”);</script>
+	● Once the victim clicks on this link, an HTTP GET request will be sent to the www.example.com web server, which returns a page containing the search result, with the original input in
+	the page. The input here is a JavaScript code which runs and gives a pop-up message on the victim’s browser.
+
+Persistent (Stored) XSS Attack
+	● Attackers directly send their data to a target website/server which stores the data in a persistent storage.
+	● If the website later sends the stored data to other users, it creates a channel between the users and the attackers.
+		Example : User profile in a social network is a channel as it is set by one user and viewed by another.
+	● These channels are supposed to be data channels.
+	● But data provided by users can contain HTML markups and JavaScript code.
+	● If the input is not sanitized properly by the website, it is sent to other users’ browsers through the channel and gets executed by the browsers.
+	● Browsers consider it like any other code coming from the website. Therefore, the code is given the same privileges as that from the website.
+
+Samy worm
+	● Anyone who viewed my profile who wasn't already on my friends list would inadvertently add me as a friend. Without their permission
+	● I can propagate the program to their profile, can't I. If someone views my profile and gets this program added to their profile, that means anyone who views THEIR profile also adds me as a
+	friend and hero, and then anyone who hits THOSE people's profiles add me as a friend and hero...
+	● Within 20 hours, 1m+ users infected
+
+Damage Caused by XSS
+	- Web defacing: JavaScript code can use DOM APIs to access the DOM nodes inside the hosting page. Therefore, the injected JavaScript code can make arbitrary changes to the page. Example: JavaScript
+	code can change a news article page to something fake or change some pictures on the page.
+	- Spoofing requests: The injected JavaScript code can send HTTP requests to the server on behalf of the user.
+	- Stealing information: The injected JavaScript code can also steal victim’s private data including the session cookies, personal data displayed on the web page, data stored locally by the web application.
+
+Countermeasures: the Filter Approach
+	● Removes code from user inputs.
+	● It is difficult to implement as there are many ways to embed code other than <script> tag.
+	● Use of open-source libraries that can filter out JavaScript code.
+	● Example : jsoup
+
+Countermeasures: The Encoding Approach
+	● Replaces HTML markups with alternate representations.
+	● If data containing JavaScript code is encoded before being sent to the browsers, the embedded JavaScript code will be displayed by browsers, not executed by them.
+	● Converts <script> alert(‘XSS’) </script> to &lt;script&gt;alert(‘XSS’)
+
+Defeating XSS using Content Security Policy
+	● Fundamental Problem: mixing data and code (code is inlined)
+	● Solution: Force data and code to be separated: (1) Don’t allow the inline approach. (2) Only allow the link approach. 
+
+CSP Example
+	● Policy based on the origin of the code
+		- Code from self, example.com, and google will be allowed.
+		CSP: Content-Security-Policy: script-src 'self' example.com https://apis.google.com
+
+How to Securely Allow Inlined Code
+	● Using nonce
+	CSP: Content-Security-Policy: script-src 'nonce-34fo3er92d'
+		<script nonce=34fo3er92d></script> - allowed
+		<script nonce=3efsdfsdff></script> - not allowed
+
+Examples
+	● Content-Security-Policy: default-src 'self’
+	● Are the followings allowed?
+		○ <script src='/hello.js></script>
+			■ -> yes
+		○ <script src='https://other.com/script.js'></script>
+			■ -> no
+		○ <script>alert('hello')</script>
+			■ à no (inline scripts are prevented)
+
+Twitter hacking
+	• The scammers received over 400 payments in bitcoin
+		• How much did they receive in US dollar?
+			• 12.86 BTC à $798,897
+			• Half of those payments were made from U.S.-based cryptocurrency exchanges
+		• What’s the largest transaction?
+			• $42,000, from Japanese cryptocurrency exchange.
+	
+	• Why did victims send the bitcoin (i.e., money) to them?
+	• How can the scammer conduct this attack? 
+
+How can they conduct this attack?
+	• Social engineering attack
+	• Targeted some Twitter employees with access to internal systems and tools.
+	• Convinced a Twitter employee that he worked in the Twitter IT department and tricked that employee into giving him the credentials.
+	• A few employees were targeted in a phone spear phishing attack
+	• This attack relied on a significant and concerted attempt to mislead certain employees and exploit human vulnerabilities to gain access to our internal systems
+
+Colonial Pipeline ransomware attack
+	• Hackers gained entry into the networks of Colonial Pipeline Co. on April 29 through a virtual private network account, 
+	which allowed employees to remotely access the company’s computer network.
+	• The account’s password has since been discovered inside a batch of leaked passwords on the dark web
+	• That means a Colonial employee may have used the same password on another account that was previously hacked
+	• A little more than one week later, on May 7, an employee in Colonial’s control room saw a ransom note demanding cryptocurrency appear on a computer just before 5 a.m.
+	• By 6:10 a.m., the entire pipeline had been shut down
+
+Exam Recap
+	• Basic security concept
+		• Security mindset
+	• Software security
+		• Buffer overflow, other s/w attacks, mitigations, etc.
+	• Operating system security
+		• Permissions, Set-UID, race conditions, etc.
+	• Networks 101 & Network security
+		• 3 layers (application, transport, and network)
+		• PKI, TLS, DNS, etc.
+	• Web Security
+		• SQL Injection, CSRF, XSS, Countermeasures
+	• Cryptography
+		• Symmetric vs. Asymmetric
+
+Attacks & Countermeasures
+	• What kinds of vulnerabilities each system has?
+	• Why are they vulnerable?
+	• How can they be exploited?
+	• What kinds of countermeasures against the attacks?
+	• Why are they not perfect solutions?

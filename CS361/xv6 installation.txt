@@ -1,0 +1,7 @@
+Every student who is doing the optional project should follow the installation instructions found here (from a class at NYU):
+
+https://gcallah.github.io/OperatingSystems/xv6Install.html (Links to an external site.)
+
+to install the xv6 simulator toolchain on your laptop. If you have questions or need help you can contact me. There are instructions for testing your installation here:
+
+https://github.com/remzi-arpacidusseau/ostep-projects/tree/master/initial-xv6.

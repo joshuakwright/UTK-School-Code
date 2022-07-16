@@ -1,0 +1,24 @@
+vector<double> vectorScore;
+   vector<string> vectorName;
+
+   string name;
+   double score;
+ 
+for 
+        vectorName.push_back(name);
+        for (unsigned int i = 0; i < vectorName.size(); i++){
+            if (name == vectorName.at(i) && (i + 1) != vectorName.size()) {
+                vectorName.erase(vectorName.begin() + (vectorName.size() - 1));
+   	    }
+            else if ((i + 1) == vectorName.size()) {
+                vectorScore.push_back(score);
+            }
+        }
+        cin >> name;
+        cin >> score;
+
+    for (unsigned int i = 0; i < vectorName.size(); i++){
+ 	cout << left << setw(15) << setfill('.') << vectorName.at(i);
+        cout << right << setw(10) << setfill('.') << fixed << setprecision(2) <<vectorScore.at(i);
+        cout << "\n";
+    }

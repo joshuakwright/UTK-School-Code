@@ -1,0 +1,707 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <libgen.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <time.h>
+#include <utime.h>
+#include "fields.h"
+#include "jval.h"
+#include "dllist.h"
+#include "jrb.h"
+
+typedef struct {
+    int nameSize[1];
+    char *fileName;
+    long inode[1];
+    unsigned int mode[1];
+    long modTime[1];
+    long fileSize[1];
+    char *fileBuf;
+    int fileOrDir; // 0 for directory, 1 for file
+    int seen; //0 if not seen, 1 if seen before
+} file;
+
+int
+InodeComp(Jval i, Jval j) {
+    if (*((unsigned long *)i.v) < *((unsigned long *)j.v)) return -1;
+    if (*((unsigned long *)i.v) > *((unsigned long *)j.v)) return 1;
+    return 0;
+}
+
+int
+ReadInFile(file *input, JRB inodes){
+    if (!fread(input->nameSize, 4, 1, stdin)) return 0;
+
+    input->fileName = malloc(input->nameSize[0]);
+    fread(input->fileName, 1, input->nameSize[0], stdin);
+
+    fread(input->inode, 8, 1, stdin);
+
+    input->seen = 0;
+    JRB rnode = jrb_find_gen(inodes, new_jval_v(input->inode), InodeComp);
+    if (rnode != NULL) {
+        input->seen = 1;
+        //dll_append(rnode->val.v, new_jval_s(strdup(input->fileName)));
+    }
+    else {
+        /*void *temp = malloc(sizeof(long));
+        memcpy(temp, input->inode, sizeof(long));
+        Dllist names = new_dllist();
+        dll_append(names, new_jval_s(strdup(input->fileName)));
+        jrb_insert_gen(inodes, new_jval_v(temp), new_jval_v(names), InodeComp);*/
+
+        fread(input->mode, 4, 1, stdin);
+        fread(input->modTime, 8, 1, stdin);
+
+        input->fileOrDir = 1;
+        if (S_ISDIR(input->mode[0])) input->fileOrDir = 0;
+
+        if (input->fileOrDir) {
+            fread(input->fileSize, 8, 1, stdin);
+
+            input->fileBuf = malloc(input->fileSize[0]);
+            fread(input->fileBuf, 1, input->fileSize[0], stdin);
+        }
+    }
+
+    return 1;
+}
+
+void
+FreeInput(file input) {
+    free(input.fileName);
+    free(input.fileBuf);
+}
+
+void
+ExtractName(char *directory, char *workingDir) {
+    int len = strlen(directory);
+    int i;
+    for (i = len; i > 0; i--) {
+        if (directory[i] == '/') {
+            i++;
+            break;
+        }
+    }
+    
+    for(int j = i, k = 0; j < len+1; j++, k++) {
+        workingDir[k] = directory[j];
+    }
+}
+
+void
+ExtractDirectory(char *directory, char *workingDir) {
+    int len = strlen(directory);
+    int i;
+    for (i = len; i > 0; i--) {
+        if (directory[i] == '/') {
+            i++;
+            break;
+        }
+    }
+    if (i == 0) i = len+1;
+    for(int j = 0, k = 0; j < i-1; j++, k++) {
+        workingDir[k] = directory[j];
+    }
+}
+
+void
+CreateFile(file *input) {
+    char *name = malloc(strlen(input->fileName));
+    ExtractName(input->fileName, name);
+
+    FILE *fp;
+    fp = fopen(name, "w");
+    fwrite(input->fileBuf, 1, input->fileSize[0], fp);
+    fclose(fp);
+
+    struct timeval times[2];
+    times[0].tv_sec = time(NULL);
+    times[0].tv_usec = 0;
+    times[1].tv_sec = input->modTime[0];
+    times[1].tv_usec = 0;
+    utimes(name, times);
+    chmod(name, input->mode[0]);
+
+    free(name);
+}
+
+void
+MakeHardLink(file *input, Dllist entries) {
+    Dllist temp;
+    file *input2;
+    dll_traverse(temp, entries) {
+        file *tempFile = dll_first(temp)->val.v;
+        if (tempFile->inode == input->inode) {
+            input2 = tempFile;
+        }
+    }
+    
+    link(input2->fileName, input->fileName);
+    //dll_traverse(temp, cur) {
+    //    link(temp->val.s, input->fileName);
+    //}
+}
+
+int
+NestCounter(char *path) {
+    int nest = 0;
+    for (int i = 0; i < strlen(path); i++) {
+        if (path[i] == '/') nest++;
+    }
+    return nest;
+}
+
+void
+ReadInFiles(Dllist entries) {
+    JRB inodes = make_jrb();
+    file *input = malloc(sizeof(file));
+    int eof = 1;
+    eof = ReadInFile(input, inodes);
+
+    while(eof) {
+        if (input->seen == 0) {
+            Dllist files = new_dllist();
+            dll_append(files, new_jval_v(input));
+            dll_append(entries, new_jval_v(files));
+            void *temp = malloc(sizeof(long));
+            memcpy(temp, input->inode, sizeof(long));
+            jrb_insert_gen(inodes, new_jval_v(temp), JNULL, InodeComp);
+        }
+        else {           
+            Dllist temp; 
+            dll_traverse(temp, entries) {
+                file *tempFile = dll_first(temp->val.v)->val.v;
+                if (tempFile->inode == input->inode) {
+                    dll_append(temp, new_jval_v(input));
+                }
+            }
+        }
+        input = malloc(sizeof(file));
+        eof = ReadInFile(input, inodes);
+    }
+}
+
+void
+BuildDirectories(Dllist entries) {
+    Dllist list;
+    dll_traverse(list, entries) {
+        Dllist temp, temp2 = list->val.v;
+        dll_traverse(temp, temp2) {
+            file *input = (file *)temp->val.v;
+            for (int i = 0; i < NestCounter(input->fileName); i++) chdir("..");
+            char *path = malloc(strlen(input->fileName));
+            ExtractDirectory(input->fileName, path);
+            if (input->seen == 0) {
+                if (S_ISDIR(input->mode[0])) {
+                    char *name = malloc(strlen(input->fileName));
+                    name = strdup(input->fileName);
+                    ExtractName(input->fileName, name);
+                    chdir(path);
+                    mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                    chdir(name);
+                    free(name);
+                }
+                else {
+                    chdir(path);
+                    free(path);
+                    CreateFile(input);
+                }
+            }
+            else {
+                MakeHardLink(input, entries);
+            }
+        }
+    }
+}
+
+void
+SetDirectoryPermissions(JRB inodes) {
+    JRB rnode;
+    file *input;
+    jrb_traverse(rnode, inodes) {
+        Dllist temp, cache = rnode->val.v;
+        dll_traverse(temp, cache) {
+            input = (file *)temp->val.v;
+            break;
+        }
+        break;
+    }
+
+    char *cwd = malloc(PATH_MAX);
+    getcwd(cwd, PATH_MAX);
+    char *dir = malloc(strlen(cwd));
+    ExtractDirectory(cwd, dir);
+    char *name = malloc(strlen(dir));
+    ExtractName(dir, name);
+    if (strcmp(input->fileName, name) == 0) chdir("..");
+
+    while (strcmp(input->fileName, name) != 0) {
+        chdir("..");
+        free(cwd);
+        free(dir);
+        free(name);
+        cwd = malloc(PATH_MAX);
+        getcwd(cwd, PATH_MAX);
+        char *dir = malloc(strlen(cwd));
+        ExtractDirectory(cwd, dir);
+        char *name = malloc(strlen(dir));
+        ExtractName(dir, name);
+    }
+    cwd = malloc(PATH_MAX);
+    getcwd(cwd, PATH_MAX);
+    printf("%s\n", cwd);
+}
+
+int main(int argc, char* argv[]) {   
+    Dllist entries = new_dllist();
+    ReadInFiles(entries);
+    BuildDirectories(entries);
+    //SetDirectoryPermissions(inodes);
+    return 0;
+}
+
+/*
+void
+CreateFiles(JRB inodes, file *input, char *currPath);
+
+void BuildDirectory(file *input, JRB inodes) {
+    long timel = input->modTime[0];
+    char *name = malloc(strlen(input->fileName)+1);
+    name = strdup(input->fileName);
+    unsigned int mode = input->mode[0];
+
+    ExtractName(input->fileName, name);
+    mkdir(name, 40700);
+
+    chdir(name);
+
+    char *nextDir = malloc(strlen(name));
+    strcat(nextDir, name);
+
+    free(input);
+    input = malloc(sizeof(file));
+    CreateFiles(inodes, input, nextDir);
+
+    free(nextDir);
+
+    chmod(name, mode);
+    struct timeval times[2];
+    times[0].tv_sec = time(NULL);
+    times[0].tv_usec = 0;
+    times[1].tv_sec = timel;
+    times[1].tv_usec = 0;
+    utimes(name, times);
+}
+
+int
+FileInParentDir(char *input, char *currPath) {
+    char *inputPath = malloc(strlen(input));
+    ExtractDirectory(input, inputPath);
+    char *workingPath = malloc(strlen(currPath));
+    ExtractDirectory(currPath, workingPath);
+
+    char *inputPathDirName = malloc(strlen(inputPath));
+    ExtractName(inputPath, inputPathDirName);
+    char *workingPathDirName = malloc(strlen(workingPath));
+    ExtractName(workingPath, workingPathDirName);
+
+    //printf("1%s\n", inputPathDirName);
+    //printf("2%s\n", workingPathDirName);
+
+    int comp = strcmp(inputPathDirName, workingPathDirName);
+
+    //printf("%i\n", comp); 
+
+    free(inputPath);
+    free(workingPath);
+    free(inputPathDirName);
+    free(workingPathDirName);
+    
+    return comp;
+}
+
+void
+CreateFiles(JRB inodes, file *input, char *currPath) {
+    int eof = ReadInFile(inodes, input);
+                
+    while(eof) {
+        if (input->seen == 0) {
+            if (!S_ISDIR(input->mode[0])) {
+                char *inputPath = malloc(strlen(input->fileName));
+                ExtractDirectory(input->fileName, inputPath);
+
+                if (strlen(inputPath) == strlen(currPath)) {
+                //if (FileInParentDir(input->fileName, currPath) != 0) {
+                    //printf("here\n");
+                    chdir("..");
+                    char *path = malloc(strlen(input->fileName));
+                    ExtractDirectory(input->fileName, path);
+                    char *name = malloc(strlen(path));
+                    ExtractName(path, name);
+                    chdir(name);
+                    printf("%s\n", name);
+                    CreateFile(input, input->seen);
+                    free(path);
+                    free(name);
+                    return;
+                }
+                CreateFile(input, input->seen);
+            }
+            else {
+                char *inputPath = malloc(strlen(input->fileName));
+                ExtractDirectory(input->fileName, inputPath);
+                //char *workingPath = malloc(strlen(currPath));
+                //ExtractDirectory(currPath, workingPath);
+                
+                if (strlen(inputPath) < strlen(currPath)) {
+                    chdir("..");
+                    BuildDirectory(input, inodes);
+                } 
+                else {
+                    BuildDirectory(input, inodes);
+                }
+                free(inputPath);
+                //chdir("..");
+                //BuildDirectory(input, inodes);
+            }
+        }
+        else {
+            MakeHardLink(input, inodes);
+        }
+        eof = ReadInFile(inodes, input);
+        if (S_ISDIR(input->mode[0])) BuildDirectory(input, inodes);
+    }
+    chdir("..");
+}
+*/
+
+/*
+void
+CreateFile(file *input) {
+    char *name = malloc(strlen(input->fileName));
+    ExtractName(input->fileName, name);
+
+    FILE *fp;
+    fp = fopen(name, "w");
+    fwrite(input->fileBuf, 1, input->fileSize[0], fp);
+    fclose(fp);
+
+    struct timeval times[2];
+    times[0].tv_sec = time(NULL);
+    times[0].tv_usec = 0;
+    times[1].tv_sec = input->modTime[0];
+    times[1].tv_usec = 0;
+    utimes(name, times);
+    chmod(name, input->mode[0]);
+
+    free(name);
+}
+*/
+/*
+typedef struct {
+    int nameSize[1];
+    char *fileName;
+    long inode[1];
+    unsigned int mode[1];
+    long modTime[1];
+    long fileSize[1];
+    char *fileBuf;
+    int fileOrDir; // 0 for directory, 1 for file
+    int seen; //0 if not seen, 1 if seen before
+} file;*/
+/*
+void
+MakeHardLink(file *input, Dllist entries) {
+    Dllist temp;
+    file *input2;
+    dll_traverse(temp, entries) {
+        file *tempFile = dll_first(temp)->val.v;
+        if (tempFile->inode == input->inode) {
+            input2 = tempFile;
+        }
+    }
+    
+    link(input2->fileName, input->fileName);
+    //dll_traverse(temp, cur) {
+    //    link(temp->val.s, input->fileName);
+    //}
+}
+
+int
+NestCounter(char *path) {
+    int nest = 0;
+    for (int i = 0; i < strlen(path); i++) {
+        if (path[i] == '/') nest++;
+    }
+    return nest;
+}
+
+void
+ReadInFiles(Dllist entries) {
+    JRB inodes = make_jrb();
+    file *input = malloc(sizeof(file));
+    int eof = 1;
+    eof = ReadInFile(input, inodes);
+
+    while(eof) {
+        if (input->seen == 0) {
+            Dllist files = new_dllist();
+            dll_append(files, new_jval_v(input));
+            dll_append(entries, new_jval_v(files));
+            void *temp = malloc(sizeof(long));
+            memcpy(temp, input->inode, sizeof(long));
+            jrb_insert_gen(inodes, new_jval_v(temp), JNULL, InodeComp);
+        }
+        else {           
+            Dllist temp; 
+            dll_traverse(temp, entries) {
+                Dllist temp2 = temp->val.v;
+                file *tempFile = dll_first(temp2)->val.v;
+                if (tempFile->inode == input->inode) {
+                    dll_append(temp2, new_jval_v(input));
+                }
+            }
+        }
+        input = malloc(sizeof(file));
+        eof = ReadInFile(input, inodes);
+    }
+}
+
+
+
+void
+SetDirectoryPermissions(JRB inodes) {
+    JRB rnode;
+    file *input;
+    jrb_traverse(rnode, inodes) {
+        Dllist temp, cache = rnode->val.v;
+        dll_traverse(temp, cache) {
+            input = (file *)temp->val.v;
+            break;
+        }
+        break;
+    }
+
+    char *cwd = malloc(PATH_MAX);
+    getcwd(cwd, PATH_MAX);
+    char *dir = malloc(strlen(cwd));
+    ExtractDirectory(cwd, dir);
+    char *name = malloc(strlen(dir));
+    ExtractName(dir, name);
+    if (strcmp(input->fileName, name) == 0) chdir("..");
+
+    while (strcmp(input->fileName, name) != 0) {
+        chdir("..");
+        free(cwd);
+        free(dir);
+        free(name);
+        cwd = malloc(PATH_MAX);
+        getcwd(cwd, PATH_MAX);
+        char *dir = malloc(strlen(cwd));
+        ExtractDirectory(cwd, dir);
+        char *name = malloc(strlen(dir));
+        ExtractName(dir, name);
+    }
+    cwd = malloc(PATH_MAX);
+    getcwd(cwd, PATH_MAX);
+    printf("%s\n", cwd);
+}
+*/
+
+/*
+void
+BuildDirectories(Dllist entries) {
+    Dllist list;
+    dll_traverse(list, entries) {
+        Dllist temp, temp2 = list->val.v;
+        dll_traverse(temp, temp2) {
+            file *input = (file *)temp->val.v;
+            for (int i = 0; i < NestCounter(input->fileName); i++) chdir("..");
+            char *path = malloc(strlen(input->fileName));
+            ExtractDirectory(input->fileName, path);
+            if (input->seen == 0) {
+                if (S_ISDIR(input->mode[0])) {
+                    //printf("here\n");
+                    char *name = malloc(strlen(input->fileName));
+                    name = strdup(input->fileName);
+                    ExtractName(input->fileName, name);
+                    chdir(path);
+                    mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                    chdir(name);
+                    free(name);
+                }
+                else {
+                    printf("%s\n", path);
+                    chdir(path);
+                    free(path);
+                    CreateFile(input);
+                }
+            }
+            else {
+                MakeHardLink(input, entries);
+            }
+        }
+    }
+}
+*/
+
+/*
+void
+ExtractName(char *directory, char *workingDir) {
+    int len = strlen(directory);
+    int i;
+    for (i = len; i > 0; i--) {
+        if (directory[i] == '/') {
+            i++;
+            break;
+        }
+    }
+    
+    for(int j = i, k = 0; j < len+1; j++, k++) {
+        workingDir[k] = directory[j];
+    }
+}
+
+void
+ExtractDirectory(char *directory, char *workingDir) {
+    int len = strlen(directory);
+    int i;
+    for (i = len; i > 0; i--) {
+        if (directory[i] == '/') {
+            i++;
+            break;
+        }
+    }
+    if (i == 0) i = len+1;
+    for(int j = 0, k = 0; j < i-1; j++, k++) {
+        workingDir[k] = directory[j];
+    }
+}
+*/
+
+       /*void *temp = malloc(sizeof(long));
+        memcpy(temp, input->inode, sizeof(long));
+        Dllist names = new_dllist();
+        dll_append(names, new_jval_s(strdup(input->fileName)));
+        jrb_insert_gen(inodes, new_jval_v(temp), new_jval_v(names), InodeComp);*/
+
+/*
+void
+CreateFiles(JRB inodes, file *input, char *currPath);
+
+void BuildDirectory(file *input, JRB inodes) {
+    long timel = input->modTime[0];
+    char *name = malloc(strlen(input->fileName)+1);
+    name = strdup(input->fileName);
+    unsigned int mode = input->mode[0];
+
+    ExtractName(input->fileName, name);
+    mkdir(name, 40700);
+
+    chdir(name);
+
+    char *nextDir = malloc(strlen(name));
+    strcat(nextDir, name);
+
+    free(input);
+    input = malloc(sizeof(file));
+    CreateFiles(inodes, input, nextDir);
+
+    free(nextDir);
+
+    chmod(name, mode);
+    struct timeval times[2];
+    times[0].tv_sec = time(NULL);
+    times[0].tv_usec = 0;
+    times[1].tv_sec = timel;
+    times[1].tv_usec = 0;
+    utimes(name, times);
+}
+
+int
+FileInParentDir(char *input, char *currPath) {
+    char *inputPath = malloc(strlen(input));
+    ExtractDirectory(input, inputPath);
+    char *workingPath = malloc(strlen(currPath));
+    ExtractDirectory(currPath, workingPath);
+
+    char *inputPathDirName = malloc(strlen(inputPath));
+    ExtractName(inputPath, inputPathDirName);
+    char *workingPathDirName = malloc(strlen(workingPath));
+    ExtractName(workingPath, workingPathDirName);
+
+    //printf("1%s\n", inputPathDirName);
+    //printf("2%s\n", workingPathDirName);
+
+    int comp = strcmp(inputPathDirName, workingPathDirName);
+
+    //printf("%i\n", comp); 
+
+    free(inputPath);
+    free(workingPath);
+    free(inputPathDirName);
+    free(workingPathDirName);
+    
+    return comp;
+}
+
+void
+CreateFiles(JRB inodes, file *input, char *currPath) {
+    int eof = ReadInFile(inodes, input);
+                
+    while(eof) {
+        if (input->seen == 0) {
+            if (!S_ISDIR(input->mode[0])) {
+                char *inputPath = malloc(strlen(input->fileName));
+                ExtractDirectory(input->fileName, inputPath);
+
+                if (strlen(inputPath) == strlen(currPath)) {
+                //if (FileInParentDir(input->fileName, currPath) != 0) {
+                    //printf("here\n");
+                    chdir("..");
+                    char *path = malloc(strlen(input->fileName));
+                    ExtractDirectory(input->fileName, path);
+                    char *name = malloc(strlen(path));
+                    ExtractName(path, name);
+                    chdir(name);
+                    printf("%s\n", name);
+                    CreateFile(input, input->seen);
+                    free(path);
+                    free(name);
+                    return;
+                }
+                CreateFile(input, input->seen);
+            }
+            else {
+                char *inputPath = malloc(strlen(input->fileName));
+                ExtractDirectory(input->fileName, inputPath);
+                //char *workingPath = malloc(strlen(currPath));
+                //ExtractDirectory(currPath, workingPath);
+                
+                if (strlen(inputPath) < strlen(currPath)) {
+                    chdir("..");
+                    BuildDirectory(input, inodes);
+                } 
+                else {
+                    BuildDirectory(input, inodes);
+                }
+                free(inputPath);
+                //chdir("..");
+                //BuildDirectory(input, inodes);
+            }
+        }
+        else {
+            MakeHardLink(input, inodes);
+        }
+        eof = ReadInFile(inodes, input);
+        if (S_ISDIR(input->mode[0])) BuildDirectory(input, inodes);
+    }
+    chdir("..");
+}
+*/

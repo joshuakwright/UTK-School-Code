@@ -1,0 +1,6 @@
+Joshua Wright CS307 HW 8
+
+2: {B,B,B,W,B,W}
+3: {W,W,W,B,W,B}
+4: {B,W,W,W,B,W}
+5: {W,W,W,W,W,B}

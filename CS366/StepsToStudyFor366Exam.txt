@@ -1,0 +1,66 @@
+1. Go through all slides and make reduced set of notes for further study - done
+2. Go through all quizzes and record incorrect answers - done
+3. Go through all assignments - done
+4. Review last exam - done
+5. review notes taken in preperation
+6. Make one super powerpoint with all the lectures
+
+---------- Study Notes ----------
+
+Lecture 5 - 6, 7, 11, 12 ->
+	- high to low when pushing to the stack
+	- args pushed to stack in reverse order of code
+	- then the return address $eip
+	- then the previous frame pointer $ebp
+	- local variable pushed in same order as code
+	- $esp points to top of stack
+
+Notes from quizes: 
+	What's the side-channel attack? 
+	Your Answer:
+	This is when you are try to extract information from a system not by the means of the main channel 
+	/ standard use places, but by indirect methods such as power leaks, sound, or by looking at data during 
+	the wrong times.
+
+- Q 5 of quiz before 2-08
+- Q 3, 4 of 2-08
+- Q 1, 2 of 2-10
+	- strncpy() bad cause: 
+	1. null terminator can be not inserted at the end of the dest
+	2. adjacent memory pages can be overread.
+- Q 1, 2 of 2-15
+	- system() is located in libc
+- Q 3 of 2-17
+- Q 3 of 2-22
+- Q 1, of 2 3-24
+- Q 2 of 3-29
+- Q 1 of 4-05
+Three attack models against the PKI and why the three models can be failed. Why are the attacks failed?
+1. an adversary has no private associated with the public key of the certificate
+2. The certificate is not issued by a CA.  In other words, the certificate cannot be certified.
+3. Common name does not match the domain name that a victim tries to access.
+
+- Asymmetric crypto is being used for DNSSEC.
+- We have discussed it in class. Can you explain how it can happen? 
+A user accesses apple.com, but the page is totally different from the legitimate Apple website.
+	- Cyrillic "а" (U+0430) rather than the ASCII "a" (U+0061).
+
+What's the security mindset? and please provide a real-world example of the security mindset.
+	- This is thinking like an attacker. When designing and setting up our security systems, 
+	we need to think like an attacker in every way. What can we exploit? What are we assuming 
+	is safe and how can we manipulate that? Are our assumptions true? This is being able to think 
+	about your system and all of its functioning parts in a way that will allow you to mitigate threats 
+	and prevent unauthorized access and use of the system. 
+
+The TLS client should include at least three areas from below (-5 points each): 
+	- common name - expiration date - chain of trust - serial number
+
+Midterm Q: 6
+	- static vars in bss
+	- global in data
+- ECB is used frequently in the world because it is the default api
+- Side channel attacks happen when attacking a system from a non usual area, like listening to the
+sound of each keystroke to infer what was typed
+- hashing user passwords does not provide enough entropy to be a good encryption
+- In modern unix, the owner of a file can not change the owner of the file to be another user
+- ebp and eip are both 4 bytes

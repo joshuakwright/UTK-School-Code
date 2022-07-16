@@ -1,0 +1,246 @@
+#include<cstring>
+
+using namespace std;
+
+class mystring {
+   int mLength;
+   char *mData;
+public:
+   mystring();
+   mystring(const char cstring[]);
+   mystring(const mystring &rhs);
+   ~mystring();
+   void append(char c);
+   void append(const mystring &rhs);
+   void pop();
+   void clear();
+   int length() const;
+   char at(int index) const;
+   const char *c_str() const;
+};
+
+int main() {
+   mystring s;
+   char a[]{"Hello"};
+   char d = 'a';
+   mystring b(a);
+   mystring c(b);
+   s = b;
+   b.clear();
+   b.append(a);
+   b.append(c);
+   c.append(d);
+   
+   s.append("Johnny picked pickles or something like that?");
+   
+   return 0;
+}
+
+mystring::mystring() {
+   mLength = 0;
+   mData = nullptr;
+}
+
+mystring::mystring(const char cstring[]) {
+      mLength = strlen(cstring);
+      mData = new char[mLength];
+      for (int i = 0; i < mLength; i++) {
+         mData[i] = cstring[i];  
+      }
+}
+
+mystring::mystring(const mystring &rhs) {
+   for (int i = 0; i < rhs.length(); i++) {
+      mData[i] = rhs.at(i);  
+   }
+}
+
+mystring::~mystring() {
+   delete[] mData;
+}
+
+void mystring::append(char c) {
+   int length = strlen(mData) + 1;
+   char *new_mData = new char[length];
+   for (int i = 0; i < length; i++) {
+      new_mData[i] = mData[i];  
+   }
+   new_mData[length - 1] = c;
+   delete[] mData;
+   mData = new_mData;
+}
+ 
+void mystring::append(const mystring &rhs) {
+   int length = strlen(mData) + rhs.length();
+   char *new_mData = new char[length];
+   for (int i = 0; i < length; i++) {
+      new_mData[i] = rhs.mData[i];  
+   }
+   delete[] mData;
+   mData = new_mData;
+}
+
+void mystring::pop() {
+   int length = strlen(mData) - 1;
+   char *new_mData = new char[length];
+   for (int i = 0; i < length; i++) {
+      new_mData[i] = mData[i];  
+   }
+   delete[] mData;
+   mData = new_mData;
+}
+
+void mystring::clear() {
+   mLength = 0;
+   delete[] mData;
+   mData = nullptr;
+}
+
+int mystring::length() const {
+   int length = strlen(mData);
+   return length;
+}
+
+char mystring::at(int index) const {
+   int length = strlen(mData);
+   if (index > length) {
+      return '\0';  
+   }
+   else { 
+      return mData[index];
+   }
+}
+
+const char *mystring::c_str() const {
+   if (strlen(mData) == 0) {
+   return nullptr;  
+   }
+   else {
+      return mData;
+   }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+Final:
+
+#include<iostream>
+using namespace std;
+
+class mystring {
+   int mLength;
+   char *mData;
+public:
+   mystring();
+   mystring(const char cstring[]);
+   mystring(const mystring &rhs);
+   ~mystring();
+   void append(char c);
+   void append(const mystring &rhs);
+   void pop();
+   void clear();
+   int length() const;
+   char at(int index) const;
+   const char *c_str() const;
+};
+
+int main() {
+   mystring s;
+   
+   s.append("Johnny picked pickles or something like that?");
+   s.append('P');
+   
+   cout << s.c_str();
+   
+   return 0;
+}
+
+mystring::mystring() {
+   mData = nullptr;
+   mLength = 0;
+}
+
+mystring::mystring(const char cstring[]) {
+   int size;
+   for (size = 0; cstring[size] != '\0'; size++);
+   mData = new char[size];
+   mLength = size;
+   for(int i = 0; i < size; i++) {
+      mData[i] = cstring[i];  
+   }
+}
+
+mystring::mystring(const mystring &rhs) {
+   mData = new char[rhs.mLength];
+   mLength = rhs.mLength;
+   for (int i = 0; i < rhs.mLength; i++) {
+      mData[i] = rhs.mData[i];  
+   }
+}
+
+mystring::~mystring() {
+   delete [] mData;
+}
+
+void mystring::append(char c) {
+   char *new_mData = new char[mLength + 1];
+   for (int i = 0; i < mLength; i++) {
+      new_mData[i] = mData[i];  
+   }
+   new_mData[mLength] = c;
+   mLength += 1;
+   delete[] mData;
+   mData = new_mData;
+}
+ 
+void mystring::append(const mystring &rhs) {
+      int new_length = mLength + rhs.mLength;
+      char *new_str = new char [new_length];
+      int i;
+      int j;
+      for(i = 0; i < mLength; i++){
+         new_str[i] = mData[i];  
+      }
+      for(j = 0; j < rhs.mLength ; j ++) {
+         new_str[j+i] = rhs.mData[j];
+      }
+      delete [] mData;
+      mData = new_str;
+      mLength = new_length;
+}
+void mystring::pop() {
+   if (mLength > 0) {
+   mLength -= 1;
+   char *new_mData = new char[mLength];
+   for (int i = 0; i < (mLength); i++) {
+      new_mData[i] = mData[i];  
+   }
+   delete[] mData;
+   mData = new_mData;
+   }
+   else {
+      delete[] mData;
+      mData = nullptr;
+   }
+}
+
+void mystring::clear() {
+   mLength = 0;
+   delete [] mData;
+   mData = nullptr;
+}
+
+int mystring::length() const {
+   return mLength;
+}
+
+char mystring::at(int index) const {
+      return mData[index];
+}
+
+const char *mystring::c_str() const {
+ char *cStr = new char [mLength];
+   cStr = mData;
+   
+      return cStr;     
+}

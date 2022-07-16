@@ -1,0 +1,25 @@
+int n = 0;
+	for (int i = 0; i < Nrow; i++) {
+		for (int j = 0; j < Ncol; j++) {
+			cell temp;
+			
+			if (i != Nrow - 1){
+				temp.row = i;
+				temp.col = j;
+				wall[n][0] = temp;
+				temp.row++;
+				wall[n][1] = temp;
+			}
+
+			n++;
+
+			if (j != Ncol - 1) {
+				temp.row = i;
+				wall[n][0] = temp;
+				temp.col++;
+				wall[n][1] = temp;
+			}
+
+			n++;
+		}
+	}

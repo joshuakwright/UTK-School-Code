@@ -1,0 +1,9 @@
+A. The number of students is : 80182
+B. The number of staff is : 9917
+C. The number of faculty is : 9901
+D. The number of female students is : 40337
+E. The average female student's GPA is : 2.405
+F. The number of female students with a 4.0 GPA is : 7987
+G. The number of male students is : 39845
+H. The average male student's GPA is : 2.380
+I. The number of male students with a 4.0 GPA is : 7740

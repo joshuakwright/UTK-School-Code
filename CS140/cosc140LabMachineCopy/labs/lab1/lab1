@@ -1,0 +1,34 @@
+#include<iostream>
+#include<cctype>
+#include<cstdio>
+#include<string>
+#include<stdlib.h>
+#include<cstdlib>
+
+using namespace std;
+
+
+
+int main(int argc, char *argv[]) {
+
+	if (argc != 3) {
+		cerr << "Error. Format: ./Prog1d -encode/-decode 0-9\n";
+		return 0;
+	}
+	if (string(argv[1]) != "-encode" && string(argv[1]) != "-decode") {
+		cerr << "Error. Format: ./Prog1d -encode/-decode 0-9\n";
+		return 0;
+		}
+	int j = 0;
+	for(int i = 0; i < 10; i++) {
+		if (&argv[2] != i) {
+			j++;
+		}
+	}
+	if (j != 9) {
+		cerr << "Error. Format: ./Prog1d -encode/-decode 0-9\n";
+		return 0;
+	}
+
+	return 0;
+}

@@ -1,0 +1,2 @@
+Invalid Number of Arguments
+Format: ./Ptrfun -copy/compare message.txt message_copy.txt

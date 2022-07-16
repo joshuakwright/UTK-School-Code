@@ -1,0 +1,148 @@
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <iomanip>
+#include <math.h>
+#include <sstream>
+
+using namespace std;
+
+class city {
+	public:
+		string get_name() {return name;}
+		string get_type() {return type;}
+		int get_zone() {return zone;}
+		float get_latitude() {return latitude;}
+		float get_longitude() {return longitude;}
+		int get_population() {return population;}
+
+		friend istream & operator>>(istream &in, city &c);
+		friend ostream & operator<<(ostream &, city &);
+
+	private:
+		string name;
+		string type;
+		int zone;
+		float latitude;
+		float longitude;
+		int population;
+};
+
+istream & operator>>(istream &in, city &c) {
+	string temp;
+	in >> temp;
+	if (temp.at(0) != '#') {
+		istringstream sin(temp);
+		sin >> c.zone;
+		sin.clear();
+
+		in >> c.name >> c.type >> c.latitude >> c.longitude >> c.population;
+
+		c.latitude *= (M_PI / 180);
+		c.longitude *= (M_PI / 180);
+		return in;
+	}
+	else {
+		c.zone = -1;
+		return in;
+	}
+}
+
+ostream & operator<<(ostream &out, city &c) {
+	c.latitude *= (180 / M_PI);
+	c.longitude *= (180 / M_PI);
+
+	out << left << setw(18) << c.name; 
+	out << left << setw(12) << c.type;
+	out << c.zone << " ";
+	out << right << setw(10) << c.population;
+	out << right << setw(8) << setprecision(2) << c.latitude;
+	out << right << setw(8) << setprecision(2) << c.longitude;
+	out << endl;
+
+	return out;
+}
+
+//class costtable;
+
+void read_cityinfo(string fname, vector<city> &cities) { 
+	ifstream fin;
+	fin.open(fname.c_str());
+
+	city tcity;
+	string line;
+
+	while (getline(fin, line)) {
+		if (line.length() != 0) {
+			getline(fin, line); 
+			istringstrea sin(line);
+			sin >> tcity;
+			if (tcity.get_zone() != -1) {
+				cities.push_back(tcity);
+			}
+			sin.clear();
+		}
+	}	
+
+	fin.close();
+}
+
+void write_cityinfo(string fname, vector<city> &cities) { 
+	ofstream fout;
+	fout.open(fname.c_str());
+
+	fout << "CITY INFO (N=" << cities.size() << "):\n" << endl;
+
+	for (int i = 0; i < (int)cities.size(); i++) { 
+		fout << right << setw(3) << i << " ";
+		fout << cities[i];
+	}
+
+	fout.close();
+}
+
+//write_distancetable() { }
+//write_timetable() { }
+
+//create_citygraph() { }
+//write_citygraph() { }
+
+//dijkstra_route() { }
+
+int main(int argc, char *argv[])
+{
+	// commandline option decoding
+
+	//city graph declarations
+
+	string fname = argv[1];
+	vector<city> cities;
+
+	read_cityinfo(fname, cities);
+	write_cityinfo("output.txt", cities);
+
+	return 0;
+
+	//set up costtables
+
+	//create_citygraph()
+
+	/*
+	   if (mode == graphinfo) {
+	   write_cityinfo()
+
+	   write_distancetable()
+	   write_timetable()
+
+	   write_citygraph()
+
+	   return from program
+	   }
+
+	   while (not done) {
+	   enter> from, to cities
+	   dijkstra_route(costmode,from,to) 
+	   }
+	   */
+}

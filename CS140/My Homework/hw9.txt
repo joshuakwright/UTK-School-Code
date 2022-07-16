@@ -1,0 +1,10 @@
+Problem 1:
+It will return the reverse of each line:
+pu rzo dwh pb phwdo zrup
+pdujh ohwv qrudk vhh vdudkv whohjudp
+
+Problem 2:
+Prog1d output: with -decode 3
+mr owl ate my metal worm
+marge lets norah see sarahs telegram
+

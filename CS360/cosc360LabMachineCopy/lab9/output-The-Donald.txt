@@ -1,0 +1,19 @@
+Chat Rooms:
+
+American-Idol:
+Art:
+Baseball:
+Bridge:
+Food:
+Movies:
+Music:
+Politics:
+Video-Games:
+Woodworking: Frenchy
+
+Enter your chat name (no spaces):
+Enter chat room:
+The-Donald has joined
+Abby has joined
+Keroppi has joined
+Gus has joined

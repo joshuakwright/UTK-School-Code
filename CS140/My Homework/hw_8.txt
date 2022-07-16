@@ -1,0 +1,20 @@
+Problem 1:
+a. n^2
+b. 1
+c. N
+d. NlogN
+e. logN
+f. 2^N
+
+Problem 2:
+a. 1
+b. N
+
+Problem 3:
+a. N
+b. N
+
+Problem 4:
+N^1/2 is the square root of N so it's time will be only a fraction of N. But
+logN is saying 10 to the power of what = N. As N grows, 10's exponent grows much
+slower than N's square root. 

@@ -1,0 +1,24 @@
+template <typename T>
+struct dlist<T>::node *dlist<T>::merge(node *L, node *M, node *R) {  
+	node *H = L->prev;    // sublist head node  
+	node *p = L;          // node to consider from sublist L  
+	node *q = M;          // node to consider from sublist M  
+
+	while (p != q && q != R) {
+		if (*p < *q) {
+			p = p->next;
+		}
+		else {
+			node *temp = q;
+			q->prev->next = q->next;
+			q->next->prev = q->prev;
+			p->prev->next = q;
+			q->prev = p->prev;
+			q->next = p;
+			p->prev = q;
+			q = temp->next;
+		}
+	}
+
+	return H->next;
+}

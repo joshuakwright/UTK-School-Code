@@ -1,0 +1,234 @@
+////////////////////OLD QUIZ NOTES/////////////////////////////
+
+In Java, enumerated constants are internally represented as: objects
+Which built in java package is imported automatically? java.lang
+java -jar JavaCode.jar  to execute jar code
+What is another name for a super class? base class
+If a subclass wants to inherit from the super class, what keyword should be used in Java? extends
+Java does not supports multiple inheritance through the inheritance mechanisms. 
+Why use interfaces in Java?  Achieve multiple inheritance .  Define functionality for multiple classes .
+The collections objects are found in which of the following Java libraries? java.util
+
+Why is it so efficient to write functions using tail recursion? It allows the compiler to re-use the stack frame for the function and hence avoid multiple function calls.
+In functional programming, arguments that contain intermediate results which get passed to successive recursive calls are called: continuations
+Which of the following types of problems, naturally recursive problems, lend themselves to functional programming? graph traversals , tree traversals ., recurrences 
+
+Which of the following techniques for creating a functional program uses continuation arguments and performs pre-processing on a list by performing the calculations 
+on the first element of the list and then making the recursive call for the rest of the list? Tail recursion
+
+Which of the following techniques for creating a functional program performs post-processing on a list by first making the recursive call on the rest of the list and 
+then calculating the final result by performing an appropriate computation to combine the first element of the list with the result of the recursive call? inductinve construction
+
+What are the basis and fundamental aspect of functional languages? lists and functions
+
+//////////////NOTES NOTES////////////////////////
+
+Java: Constants
+	▪ final keyword – a Java’s way of declaring a constant
+	▪ Memory for the final keyword is shared by all instances
+	▪ Want it to be accessible outside the class, declare it both public and static
+
+Java: static
+	➢ Just like in C++
+	➢ If field is static, then only one copy for entire class
+	➢ Example:
+		static int numLists = 0;
+		numLists++
+	➢ Free functions should be static methods in Java
+
+Java Features
+	- Multi-Thread Concurrency
+	- Functional
+	- Better Preformance
+	- Platform Independent
+	- Secure
+	- Robust
+	- Simple
+	- Familiar
+	- Object Oriented
+
+the root of Java class hierarchy is the Object class
+Java strings are immutable 
+
+Review Questions
+	- Where does the main function go in Java?
+		Inside a class – declared as static public and returns void
+	- How do you run a compile and run a program in Java?
+		javac filename.java, java filename
+		filename = class name
+	- Does main need an argument?
+		yes – String args[]
+	- Does the constructor of the main class need an argument?  
+		no
+Data Types
+	▪ Every data object is an instance of a class
+Java: Array Syntax
+	Declaring:
+		datatype variable_name[]; OR
+		datatype[] variable_name;
+	Instantiating: 
+		variable_name = new datatype [size];
+Instantiate – new or initialize
+		int a [] = new int[5];
+		int [] b = new int[8];
+		int [] c = new int[] {1, 2, 3, 4, 5}
+		int d [] = {1, 2, 3, 4, 5}
+	String literal:
+		String str = “Hello!”;
+	String new:
+		String str = new String (‘Hello!’)
+Java Control Flow
+	➢ 3 Types of control statements:
+		➢ Decision Making
+		➢ Loop
+		➢ Jump
+Objects: Java is object focused
+	➢ Everything in Java an object
+	➢ Everything is a pointer to an address on heap containing the object
+	➢ No explicit handle to a pointer, but everything is a pointer
+
+Java Classes
+	➢ Variables whose types are classes cannot be allocated on the stack
+	➢ All objects are allocated by calling new and memory is allocated for object from the heap
+	➢ Always use dot operator to access fields and functions
+	➢ Beware of assignment
+	➢ a = b when executed assigns the pointer of a to b
+	➢ If a changes so will b
+	➢ Initialization Blocks
+	➢ Called when object first created
+	➢ Essentially copied into constructor
+	➢ Generic Code for multiple constructors
+ 	➢ Nested Classes – define a class within a class
+	➢ ObjectClass – root of Java class hierarchy
+	➢ All classes have the Objectclass as their superclass
+	➢ finalize method in this class (not to be called)
+	➢ equals method in this class to compare two objects
+
+
+Java Keywords
+	➢ this
+		- current object in a method: this
+		- variable in a class:  this.var
+		- call the method of current class: this.method();
+		- call constructor of current class:  this()
+		- parameter to a method: fun(this);
+		- used to get current instance of a class: return this;
+	- final
+		- final variable -> to create constant variables
+		- final methods -> prevent method overriding
+		- final classes -> Prevent Inheritance
+	➢ static
+		- blocks
+		- variables
+		- methods
+		- classes
+
+Access Modifiers
+	➢ What are access modifiers or specifiers?
+		Keywords that define the accessibility of classes, methods, and variables
+	➢ Facilitates encapsulation
+	➢ 4 types:
+		➢ default  (no keyword required)
+		➢ private : classes and interfaces cannot be private
+		➢ protected  : classes cannot be protected
+		➢ public
+
+Coercion
+	• Implicate type conversion of one object to another
+	• Done in order to prevent type errors
+		• String + int = String
+		• int + float = float
+
+Polymorphic Variables
+	• Holds values of different types during execution
+	• Java’s heavy usage of objects with “IS-A” relationships to one another allows a typed variable to hold many different objects
+
+Java Exception Types
+	➢ Checked:  Checked at compile time
+		Classes that inherit the Throwable class except RuntimeException and Error
+		Common type: IOException
+	➢ Unchecked:  Checked at runtime
+		Classes that inherit RuntimeException
+		Common type:  ArrayIndexOutOfBoundsException, NullPointerException, ClassCastException
+	➢ Error
+		Not recoverable
+		Common type:  StackOverflowError, NoClassDefFoundError, OutOfMemoryError
+
+Understand Java’s Exception Handling mechanism and the Java Exception Handling Hierarchy
+
+Classes in Python
+	Classes are used to define objects, BUT they are objects themselves that can be manipulated at run-time.
+		- New instance variables can be added
+		- Instance variables can be deleted
+		- Methods may be added or deleted
+		- Method’s implementation may be modified
+
+Know that Python is an interpreted language that follows the OOP
+Know Python primitive data types and standard abstract data types (list, tuple, set, dictionary) and how to create and manipulate them
+Know that Python is type inferred (dynamically typed)
+
+Threads in Python
+	● CPython contains the Global Interpreter Lock (GIL)
+	● GIL prevents utilization of multiple CPU cores
+		○ Effectively makes all Python programs single threaded
+		○ Ensures that memory usage is thread safe
+	● Multiprocessing allows for Python to utililize multiple cores
+		○ Each process is created with it’s own Python interpreter
+
+Issues Introduced 
+	• Race Conditions
+		• What happens if multiple threads are using the same resource at the same time?
+	• Deadlock
+		• Why isn’t my program doing anything?
+
+Threading vs. Asyncio
+	What is the difference?
+		Threading    =>   pre-emptive multitasking
+		Asyncio      =>   cooperative multitasking
+
+Multithreading Cons
+	1. There is overhead associated with managing threads, so you don't want to use it for basic tasks
+	2. Increases the complexity of the program, which can make debugging more difficult
+
+FP Historical Origins
+	▪ Mathematicians have distinction between 
+		- Constructive proof – Obtain a mathematical object with some desired property
+		- Nonconstructive proof – Shows mathematical object exists by contradiction
+
+Functional PL
+	- What is functional programming?
+		▪ Programming paradigm where  programs are constructed by apply  and composing functions, mapping  values to other values.
+
+Define / Let
+	➢ define statement
+		(define a 8) – global variables
+	➢ let statement – local variables for a function
+		(let ((bind variables) (function on variables)))
+		(let ((a 10) (b 20)) (+ a b)))
+
+Function Definitions
+	(lambda (x) (* x x))
+	(lambda (x) (* x x) 3) -> 9
+	(define a 3)
+	(define square (lambda (x) (* x x)))
+	(define (square x) (* x x))
+	(square a) -> 9
+
+Creating Functions in FL
+	- Basic Techniques:
+		- Tail Recursion
+			- Use continuation arguments (if necessary)
+			- Similar to pre-processing a list
+		- Inductive Construction
+			- Similar to post-processing a list
+
+What are the key FP concepts?  (Map input to output, immutability, no side effects, recursion rather than iteration)
+What are the key FP features?  (1st class functional language, higher-order functions, polymorphism, list facilities, structured function returns, general aggregates, garbage collection)
+
+Know what types of problems FP would be used for
+Name the two basic techniques for creating functions in FL
+Know the difference between tail recursion and inductive construction
+Understand the use continuations in tail recursion
+Know how the compiler optimizes tail recursion function (by re-using the stack frame for the function)
+Understand the basis for FL: lists and functions
+Understand the map function in Scheme and Python

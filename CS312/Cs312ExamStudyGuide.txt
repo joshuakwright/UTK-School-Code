@@ -1,0 +1,31 @@
+Study List:
+1. Read Notes
+
+2. Go over clicker questions
+
+3. Go over homework
+
+4. Make sure you know how to do all the objectives listed below
+
+Below are the seven learning outcomes that will be assessed on this exam:
+
+1. Be able to produce an equivalent DFA (via state diagram) from a given 
+	NFA (along with reduction of states in the DFA).
+
+2. Given a regular expression, be able to describe the language generated 
+	and/or indicate if a particular string would be in the language.
+
+3. Given a 5-tuple definition of a finite automata, be able to draw the 
+	corresponding state diagram.
+
+4. Be able to produce a DFA for a language using the cross-product of two 
+	simpler DFAs.
+
+5. Be able to produce a DFA for a language using the complement of a simpler DFA.
+
+6. Given a context-free grammar (CFG), be able to produce a derivation or
+	parse tree for a string in the language described by the CFG and also 
+	be able to determine if a given string would be in the language described 
+	by the CFG.
+
+7. Be able to use the Pumping Lemma (PL) to show that a given language is not regular.

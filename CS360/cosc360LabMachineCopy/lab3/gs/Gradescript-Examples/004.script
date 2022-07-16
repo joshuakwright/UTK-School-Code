@@ -1,0 +1,10 @@
+ge=/home/cosc360/lab3/gs/Gradescript-Examples
+cp $ge/onefile.c .
+sleep 1
+gcc -c onefile.c
+sleep 1
+gcc -o onefile onefile.o
+cp $ge/001.fm fmakefile
+if FAKEMAKE; then
+  ./onefile
+fi

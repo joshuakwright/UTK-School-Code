@@ -1,0 +1,46 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <limits>
+using namespace std;
+
+int main() {
+
+   vector<double> vectorScore;
+   vector<double> vectorCount;
+   vector<string> vectorName;
+   string name = "a";
+   int score;
+
+	while (name != "done"){
+
+		cout << "Enter student and grade: ";
+		cin >> name;
+		cin >> score;
+
+		if (cin.fail()){
+			cout << "Re-input grade: ";
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			return 0;
+		}
+
+		vectorName.push_back("name");
+	
+		for (unsigned int i = 0; i < vectorName.size(); i++){
+			if (name == vectorName.at(i)){
+				vectorName.erase(vectorScore.begin() + i);
+				vectorCount.at(i) = vectorCount.at(i) + 1;
+				vectorScore.at(i) = vectorScore.at(i) + score;
+				return 0;
+			}
+			else if (i == vectorName.size()) {
+				vectorScore.push_back(score);
+				vectorCount.at(i) = vectorCount.at(i) + 1;
+				return 0;
+			}	
+		}
+	}
+
+   return 0;
+}

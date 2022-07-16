@@ -1,0 +1,18 @@
+Chat Rooms:
+
+American-Idol:
+Art:
+Baseball:
+Bridge:
+Food:
+Movies:
+Music:
+Politics:
+Video-Games:
+Woodworking: Abby Thor
+
+Enter your chat name (no spaces):
+Enter chat room:
+Sunshine has joined
+Thor has left
+Abby has left

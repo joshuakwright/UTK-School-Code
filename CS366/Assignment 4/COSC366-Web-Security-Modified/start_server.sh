@@ -1,0 +1,1 @@
+docker run -it --rm -p 3000:3000 --mount type=bind,source="$(pwd)"/code/router.js,target=/home/cosc366/web-security/router.js --mount type=bind,source="$(pwd)"/code/views,target=/home/cosc366/web-security/views --name volcoin-container cosc366-web-security-image

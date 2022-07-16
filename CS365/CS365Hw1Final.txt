@@ -1,0 +1,241 @@
+;Joshua Wright jwrig117
+
+%macro Print 2
+    mov eax, 4
+	mov ebx, 1
+	mov ecx, %1
+	mov edx, %2
+	int 80h
+%endmacro
+
+%macro Read 2
+    mov eax, 3
+	mov ebx, 0
+	mov ecx, %1
+	mov edx, %2
+	int 80h
+%endmacro
+
+section	.data
+    inputMsg db 'Please enter two single digit numbers:', 0xa, 0xD
+    lenInputMsg equ $-inputMsg
+    
+    outputNumMsg db 'Your numbers are:', 0xa, 0xD
+    lenOutputNumMsg equ $-outputNumMsg
+    
+    addMsg db 'The addition of the two numbers is:', 0xa, 0xD
+    lenAddMsg equ $-addMsg
+    
+    subMsg db 'The difference of the two numbers is:', 0xa, 0xD
+    lenSubMsg equ $-subMsg
+    
+    mulMsg db 'The product of the two numbers is:', 0xa, 0xD
+    lenMulMsg equ $-mulMsg
+    
+    divMsg db 'The first number divided by the second has a quotient and remainder of:', 0xa, 0xD
+    lenDivMsg equ $-divMsg
+    
+    invalidMsg db 'You cannot divide by 0.', 0xa, 0xD
+    lenInvalidMsg equ $-invalidMsg
+    
+    quotientMsg db 'Quotient: '
+    lenQuotientMsg equ $-quotientMsg
+    
+    remainderMsg db 'Remainder: '
+    lenRemainderMsg equ $-remainderMsg
+    
+    commaMsg db ','
+    lenCommaMsg equ $-commaMsg
+    
+    ncMsg db 0xa
+    lenNcMsg equ $-ncMsg
+    
+section .bss
+    num1 resb 1
+    num2 resb 1
+    outputNum resb 1
+    outputRem resb 1
+
+section	.text
+	global _start       
+_start:                     
+	;user prompt
+	Print inputMsg, lenInputMsg
+	
+	;read in number 1
+	Read num1, 1
+	
+	;read in number 2
+	Read num2, 1
+	
+	;print user number msg
+	Print outputNumMsg, lenOutputNumMsg
+	
+	;print user number 1
+	Print num1, 1
+	
+	;print comma
+	Print commaMsg, lenCommaMsg
+	
+	;print user number 2
+	Print num2, 1
+	call PrintNewline
+	call PrintNewline
+	
+    ;print added values msg
+    Print addMsg, lenAddMsg
+
+    ;sum the numbers
+    mov ecx, [num1]
+    sub ecx, '0'
+    mov edx, [num2]
+    sub edx, '0'
+    
+    ;sum
+    mov eax, ecx
+    add eax, edx
+    
+    ;printing the sum
+    and eax, 1Fh
+    mov ebx, 10
+    mov edx, 0
+    div ebx
+    cmp eax, 0
+    je singleAddDigit
+    jmp doubleAddDigit
+    
+;prints the sum if only one digit
+singleAddDigit:
+    add edx, '0'
+    mov [outputRem], edx
+    Print outputRem, 1
+    jmp subtraction
+    
+;prints the sum if two digits
+doubleAddDigit:
+    add eax, '0'
+    add edx, '0'
+    mov [outputNum], eax
+    mov [outputRem], edx
+    Print outputNum, 1
+    Print outputRem, 1
+    
+subtraction: 
+    call PrintNewline
+	call PrintNewline
+	Print subMsg, lenSubMsg
+	
+	mov ecx, [num1]
+	sub ecx, '0'
+	mov edx, [num2]
+	sub edx, '0'
+	
+	and ecx, 1Fh
+	and edx, 1Fh
+	cmp ecx, edx
+	jg firstGreater
+	jmp secondGreater
+	
+;difference if the first number is greater
+firstGreater:
+    sub ecx, edx
+    add ecx, '0'
+    mov [outputNum], ecx
+    Print outputNum, 1
+    jmp multiplication
+
+;difference if the second number is greater
+secondGreater:
+    sub edx, ecx
+    add edx, '0'
+    mov [outputNum], edx
+    Print outputNum, 1
+    jmp multiplication
+	
+multiplication:
+    call PrintNewline
+	call PrintNewline
+	Print mulMsg, lenMulMsg
+	
+	mov eax, [num1]
+	sub eax, '0'
+	mov ebx, [num2]
+	sub ebx, '0'
+	
+    and eax, 1Fh
+    and ebx, 1Fh
+    mul ebx
+
+    cmp eax, 10
+    jl singleMulDigit
+    jmp doubleMulDigit
+    
+;prints the product if only one digit
+singleMulDigit:
+    add eax, '0'
+    mov [outputNum], eax
+    Print outputNum, 1
+    jmp division
+    
+;prints the product if two digits
+doubleMulDigit:
+    mov ebx, 10
+    mov edx, 0
+    div ebx
+    
+    add eax, '0'
+    add edx, '0'
+    mov [outputNum], eax
+    mov [outputRem], edx
+    Print outputNum, 1
+    Print outputRem, 1
+
+division: 
+    call PrintNewline
+	call PrintNewline
+	Print divMsg, lenDivMsg
+	
+	mov eax, [num1]
+	sub eax, '0'
+	and eax, 15
+	mov ebx, [num2]
+	sub ebx, '0'
+	and ebx, 15
+	
+	cmp ebx, 0
+	je invalid
+	jmp canDivide
+	
+;if trying to divide by 0
+invalid: 
+    Print invalidMsg, lenInvalidMsg
+    jmp exit
+    
+;performs valid division and prints results
+canDivide: 
+    mov edx, 0
+    div ebx
+    
+    add eax, '0'
+    add edx, '0'
+    mov [outputNum], eax
+    mov [outputRem], edx
+    Print quotientMsg, lenQuotientMsg
+    Print outputNum, 1
+    call PrintNewline
+    Print remainderMsg, lenRemainderMsg
+    Print outputRem, 1
+
+exit: 
+    call PrintNewline
+    
+    mov eax, 1
+    int 80h
+    
+PrintNewline:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, ncMsg
+    mov edx, lenNcMsg
+    int 80h
+ret

@@ -1,0 +1,8 @@
+This is how to make an ordered pair into one number:
+
+num = (x * (max x)) + y
+
+To extract:
+
+x = num / (max x)
+y = num % (max x)

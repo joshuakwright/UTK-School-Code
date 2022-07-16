@@ -1,0 +1,15 @@
+FD 19 was open
+FD 19 was open
+cat: thisfiledoesnotexist: No such file or directory
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open
+FD 19 was open

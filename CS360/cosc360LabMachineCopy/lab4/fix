@@ -1,0 +1,6 @@
+#!/bin/bash
+
+chmod -R u+rwx 0* 100 2> /dev/null
+rm -r 0* 100 2> /dev/null
+
+exit 0

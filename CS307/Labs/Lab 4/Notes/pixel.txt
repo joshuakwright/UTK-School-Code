@@ -1,0 +1,9 @@
+struct pixel {
+  pixel(int n_i=0, int n_j=0) {
+    i = n_i;
+    j = n_j;
+  }
+
+  int i;
+  int j;
+};

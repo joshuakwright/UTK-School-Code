@@ -1,0 +1,30 @@
+Chat Rooms:
+
+American-Idol:
+Art:
+Baseball:
+Bridge:
+Food:
+Movies:
+Music:
+Politics:
+Video-Games:
+Woodworking: Frenchy The-Donald
+
+Enter your chat name (no spaces):
+Enter chat room:
+Abby has joined
+Keroppi has joined
+Gus has joined
+The-Donald has left
+Keroppi has left
+Gus has left
+Gallant has joined
+Gallant has left
+Thor has joined
+Frenchy has left
+Tito has joined
+Abby: You can hear them in the back room strummin'
+Tito has left
+Sunshine has joined
+Thor has left
